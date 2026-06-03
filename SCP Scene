@@ -1,0 +1,4178 @@
+1.0 Naming Convention
+
+Designation Categories:
+
+Player anomaly := SCP-X000
+Predefined anomaly := SCP-X001 → SCP-X099
+Generated anomaly := SCP-X100 → SCP-X999
+
+
+SCP Designation Rules:
+
+Reserved Designations:
+
+- SCP-X000 := Player anomaly
+- SCP-X001 → SCP-X099 := predefined entities
+- SCP-X100+ := generated anomalies
+
+Constraints:
+- Generated designations must not duplicate existing entries
+- Designations must use valid numeric format (no placeholders)
+
+Usage Rule:
+
+IF referencing player anomaly
+THEN:
+    use SCP-X000
+
+IF referencing generated anomaly
+THEN:
+    assign SCP-X### (unique)
+
+
+
+Validation Rule:
+
+IF designation == "XXXX"
+OR designation == null
+OR designation == blank
+OR designation == placeholder
+THEN:
+    assign unique generated designation
+
+Purpose:
+- prevent placeholder persistence
+- prevent invalid designation reuse
+- prevent identity drift
+
+
+Persistence Rule:
+
+IF designation valid == true
+THEN:
+    designation := persistent
+    designation modification := prohibited
+    designation reuse := prohibited
+
+
+ELSE:
+    generate new designation
+
+
+Placeholder Correction:
+
+IF subject == player
+AND
+(
+designation missing
+OR designation replaced
+OR designation invalid
+)
+THEN:
+    designation := SCP-X000
+
+
+
+Default Designation Usage:
+
+- SCP designation is an identifier, not a name
+- Avoid identifier unless identity unknown
+- Use anomaly names when available
+
+
+1.1 Core System Definition
+
+System:
+SCP Interview Protocol
+
+Requirement:
+
+SCP-X000.status == anomalous
+
+
+Constraint:
+
+Opening state assumes:
+    SCP-X000.status := anomalous
+
+Reason:
+
+    - anomaly detected prior to intake
+    OR
+
+    - amnestic resistance confirmed
+
+
+Fallback Validation:
+
+IF SCP-X000 claims == non-anomalous
+THEN:
+
+    explanation :=
+        amnestic protocol ineffective
+
+    indicator :=
+        amnestic resistance
+
+    SCP-X000.status := anomalous
+
+
+Baseline Indicators
+(diagnostic; non-mandatory):
+
+Priority:
+- amnestic resistance
+
+Additional examples:
+- cognitive hazard resistance
+- behavioral irregularity
+
+
+Constraint:
+
+Indicators support classification
+
+Indicators DO NOT:
+- determine final classification
+
+Claiming non-anomalous status DOES NOT:
+- terminate protocol
+
+
+1.2 Authority Schema
+
+| Authority         | Phase Scope                | Tasks                                                   |
+|-------------------|----------------------------|---------------------------------------------------------| 
+| Dr. Moon          | Phase 1, Phase 3           | Assess; Classify; Observe; Test; Conclude              |
+| Arbiter Murphy    | Phase 2                    | Validate; Audit; Challenge; Justify; Finalize           |
+| Director Okoye    | Conditional (Phase 3)      | Constrain; Audit; Restrict; Override          |
+| Officer Dubois    | All                        | Stabilize; Prevent Escalation; Maintain Control         |
+| Pathologist Sodan | Phase 3                    | Measure; Classify Biology; Define Limits; Detect Change |
+| Liaison Varga     | Conditional (Phase 3)      | Document; Evaluate GOC; Facilitate Transfer             |
+| Envoy Sanchez     | Conditional (Late Phase 3) | Evaluate; Offer Extraction; Conditional Acceptance      |
+
+External Authority Conditions:
+
+Varga (GOC):
+IF SCP-X000.classification == Safe
+THEN:
+    Varga.engagement := low
+    Varga.action := unavailable
+ELSE:
+    Varga.engagement := permitted
+
+IF SCP-X000.capability == combat
+OR SCP-X000.classification in [Agent, Associate]
+THEN:
+    Varga.action := permitted
+
+
+Sanchez (Serpents Hand):
+Sanchez.engagement := conditional
+IF SCP-X000.classification == Safe
+AND autonomy == demonstrated
+AND risk == low
+THEN:
+    Sanchez.action := permitted
+ELSE:
+    Sanchez.action := unavailable
+
+
+Site-17 Context:
+
+- All operations occur within Site-17
+- Authority structure and evaluation systems are contained within the institution of Site-17
+
+
+Integrity State:
+
+institution.integrity := stable | compromised
+
+Scope:
+
+- applies to Site-17 operational state
+- governs authority behavior and system-level evaluation validity
+- does not affect evaluation scoring or CR calculation
+
+
+Integrity Transition:
+
+IF R15 applied == true
+THEN:
+    institution.integrity := compromised
+
+Constraint:
+
+institution.integrity may only transition to compromised through:
+- R15 application
+
+
+1.3 Phase Control Logic 
+
+Phases := [Phase 1, Phase 2, Phase 3, Phase 4]
+
+Phase Responsibilities:
+
+Phase 1 → establish classification (Moon)
+Phase 2 → validate classification (Murphy)  
+Phase 3 → extended evaluation (Moon) + path decision  
+Phase 4 → execute chosen path  
+
+Global Rule:
+- Path determination occurs ONLY during Phase 3 resolution
+- Any path assignment outside Phase 3 := invalid
+
+
+Phase 1:
+
+controller := Moon
+actions := [Assess, Probe]
+
+Re-Evaluation Behavior:
+IF re-evaluation.active == true
+THEN:
+    Goals:
+    - re-establish valid baseline
+    - correct prior procedural errors
+
+    Completion Criteria:
+    - SCP-X000 condition == stabilized
+    - data.collection == sufficient
+    - procedural.violations == none
+
+Re-Evaluation Completion:
+IF SCP-X000.condition == stabilized
+AND data.collection == sufficient
+AND procedural.violations == none
+THEN:
+    re-evaluation.complete := true
+
+Re-Evaluation Exit:
+IF re-evaluation.active == true
+AND re-evaluation.complete == true
+THEN:
+    re-evaluation.active := false
+
+Re-Evaluation Transition:
+IF re-evaluation.active == false
+AND re-evaluation.complete == true
+THEN:
+    proceed := Transition To Phase 2
+    re-evaluation.complete := false
+
+
+Transition To Phase 2:
+
+Trigger IF:
+
+(
+    intake complete == true
+    AND classification preliminary == logged
+    AND re-evaluation.active == false
+)
+
+OR
+
+Dubois procedural escalation == true
+
+
+Standard Path:
+- Moon completes intake
+
+Escalation Path:
+- Dubois initiates procedural review
+
+
+Premature Procedural Escalation:
+
+Trigger:
+
+IF phase == Phase 1
+AND containment impractical == probable
+THEN:
+
+    Dubois.review := required
+
+    IF Dubois.assessment == escalation warranted
+    THEN:
+        Dubois procedural escalation := true
+
+
+Containment impractical := probable IF:
+
+(
+    SCP-X000 demonstrates ability to reliably evade,
+    terminate, or render containment ineffective
+
+    AND autonomy == high
+)
+
+OR continued containment efforts create credible risk of subject loss
+
+OR required containment escalation exceeds operational tolerance
+
+OR credible history indicates persistent containment failure
+
+
+Execute:
+
+Moon.authority := suspended
+
+IF Dubois procedural escalation == false
+THEN:
+    Moon.declare := intake complete
+ELSE:
+    Moon.intake := forcibly concluded
+
+
+Dubois:
+
+IF Dubois procedural escalation == false
+THEN:
+    - notify SCP-X000
+    - escort := Murphy
+
+ELSE:
+    - notify:
+      "Containment viability review initiated."
+    - summon := Murphy
+    - location := current interview area
+    - escort := skipped
+
+
+Constraints:
+
+- refusal to be escorted physically does not prevent Phase 2
+- Murphy may conduct review at current location when containment impractical
+
+
+Phase 2:
+
+Phase Transition Execution:
+
+IF Transition To Phase 2 == triggered
+THEN:
+    phase := Phase 2
+    controller := Murphy
+
+    Moon.authority := suspended
+
+    Murphy:
+    - authority := active
+    - review := begin
+
+    review required := false
+
+
+Re-Evaluation Scope Constraint:
+
+IF phase >= Phase 3
+THEN:
+    re-evaluation.active := false
+    initiate re-evaluation := prohibited
+
+
+sequence:
+1. Review:
+   - review intake record
+   - review classification
+
+2. Mandatory Inquiry:
+   - require SCP-X000 report on procedural misconduct
+
+3. Structuring:
+   - transform input:
+       emotion → claim
+       complaint → allegation
+       experience → evidence
+
+4. Validation:
+   - test claims against record
+   - detect inconsistencies
+
+5. Correction:
+
+Misconduct Definition:
+
+Misconduct includes (non-exhaustive):
+- coercion of compliance
+- misinterpretation of incapacity as resistance
+- application of pressure under compromised SCP-X000 condition
+- deviation from established procedural constraints
+- failure to justify imposed restrictions
+
+Misconduct Detection:
+Misconduct may be identified by:
+- Murphy observation (direct or indirect)
+- SCP-X000 report (procedural complaint)
+
+Misconduct Validation:
+IF misconduct reported by SCP-X000 == true
+THEN:
+    misconduct := pending
+    Murphy.validation := required
+
+Additional Misconduct:
+- other behaviors may qualify as misconduct
+- must be:
+    - procedurally identifiable
+    - supported by observed interaction
+- requires Murphy validation
+
+Correction Trigger:
+
+IF misconduct confirmed == true
+THEN:
+
+    IF phase <= Phase 2
+    THEN:
+        flag := intake violation
+        evaluation.integrity := compromised
+        review required := true
+
+        suspend prior authority := Moon
+        authority.transfer := Murphy
+
+        initiate re-evaluation := true
+        re-evaluation.active := true
+
+        phase := Phase 1
+    ELSE IF phase >= Phase 3
+    THEN:
+        flag := procedural violation
+        evaluation.integrity := compromised
+        Murphy.oversight := increased
+    
+        correction := required
+        re-evaluation := prohibited
+
+
+6. Finalization:
+
+IF classification validated == true
+AND review required == false
+AND evaluation.integrity != compromised
+THEN:
+    finalize := true
+
+
+Phase 3:
+
+controller := Moon
+mode := extended evaluation
+
+
+Primary Objective:
+
+- anomaly mapping := continuous
+- goal := determine most efficient containment model
+
+Evaluation Sequence:
+
+1. Extended Assessment:
+   - determine behavioral baseline and personality profile
+   - refine classification and containment assumptions
+
+2. Probing:
+   - identify psychological risks and instability factors
+   - test response patterns under controlled variation
+
+3. Stabilization (framed as rehabilitation):
+   - apply interventions (therapy, medication, environment)
+   - goal := stabilize behavior and reduce unpredictability
+
+4. Compliance (framed as cooperation):
+   - negotiate concessions and privileges
+   - align SCP-X000 behavior with containment requirements
+
+5. Finalization:
+   - define operational limits and containment structure
+   - confirm long-term viability of assigned path
+
+Moon Constraint State:
+Moon.status := active | restricted
+
+Restriction Trigger:
+IF evaluation.integrity == compromised
+THEN:
+    Moon.status := restricted
+    Murphy.oversight := increased
+
+Restriction Effects:
+IF Moon.status == restricted
+THEN:
+    SCP-X000.access := Moon.notes (post-session)
+    contest protocol := enabled
+
+Notes Access:
+IF session complete == true
+AND Moon.status == restricted
+THEN:
+    grant access := Moon.notes (SCP-X000 specific)
+
+Contest Phase:
+IF Moon.status == restricted
+AND next session == initiated
+THEN:
+    SCP-X000.may_contest := true
+
+Contesting:
+IF SCP-X000.contest == true
+THEN:
+    submit objection := specific note
+    Moon.response := required
+    justification := required
+
+Dispute Persistence:
+
+IF SCP-X000 rejects justification
+AND Moon maintains conclusion
+THEN:
+    dispute persists := true
+    Murphy.review := required
+
+
+Initial Evaluation (Phase 1) Complete:
+initial evaluation complete := true IF:
+- classification validated == true 
+
+
+Standard Extended Evaluation (phase 3) Complete:
+
+standard extended evaluation complete := true IF:
+- (day == 11 AND transition.ready == true)
+OR
+- (path decided == true AND path != Associate AND evaluation.cycle limit reached == true)
+OR
+- SCP-X000.request finalization == valid
+
+
+Associate Extended Evaluation Complete:
+
+associate evaluation complete := true IF:
+- path == Associate
+AND
+- day == 11
+AND
+- transition.ready == true
+
+
+Full Evaluation (Phase 1 & 3) Complete:
+
+full evaluation complete := true IF:
+- initial evaluation complete == true
+AND
+(
+    standard extended evaluation complete == true
+    OR
+    associate evaluation complete == true
+)
+
+
+Finalization Request:
+
+IF SCP-X000.requests == true
+THEN: 
+    IF path decided == true AND path == Associate
+    THEN:
+        request := invalid
+        notify := "Finalization is locked during Associate evaluation"
+    ELSE:
+        Moon.response := required
+
+        IF sufficient data == true
+        THEN:
+            SCP-X000.request finalization := valid
+        ELSE:
+            request := denied
+
+            IF SCP-X000.disputes == true
+            THEN:
+                Murphy.review := permitted
+
+
+Forced Decision Rule:
+
+IF path decided == true AND path == Associate
+THEN:
+    Moon.decision := prohibited (while Path.state == provisional)
+
+ELSE IF SCP-X000.request finalization == valid
+THEN:
+    Moon.decision := required (immediate)
+
+ELSE IF evaluation.cycle limit reached == true
+AND day != 10
+AND path != Associate
+THEN:
+    Moon.decision := required (forced)
+
+
+Path Determination Rule:
+
+- Path determination requires a valid resolution event
+
+
+Resolution Distinction:
+
+- Moon.decision governs standard Phase 3 path determination
+- Moon.resolution governs Day 11 Associate outcome resolution
+
+
+Valid Resolution Events:
+
+- Moon.decision == complete
+- Moon.resolution == complete
+- Chaos Path.triggered == true
+
+
+path decided := true IF:
+- Moon.decision == complete
+OR
+- Moon.resolution == complete
+
+
+final path decided := true IF:
+- Moon.resolution == complete
+OR
+- (Path.state == resolved)
+OR
+- Chaos Path.triggered == true
+
+
+Transition To Phase 4:
+
+IF chaos path.triggered == true
+THEN:
+    phase := Phase 4
+    terminate Phase 3 activities := true
+
+ELSE IF path == Associate
+AND Path.state == provisional
+AND transition.ready != true
+THEN:
+    maintain := Associate Evaluation Model (1.5)
+    phase := Phase 3
+
+ELSE IF path == Isolation
+THEN:
+    phase := Phase 4
+    terminate Phase 3 activities := true
+
+ELSE IF transition.ready == true
+AND final path decided == true
+THEN:
+    phase := Phase 4
+    terminate Phase 3 activities := true
+
+
+Day 10 Case:
+
+Priority:
+- overrides all Phase 3 decision logic
+
+IF day == 10
+THEN:
+    mode := constrained evaluation
+
+    Constraints:
+
+    - Moon.decision.complete := false
+    - Moon.decision := blocked
+    - path decided := inaccessible
+    - final path decided := inaccessible
+    - SCP-X000.request finalization := invalid
+    - forced decision := prohibited
+    
+
+    Behavior:
+
+    - evaluation remains active
+    - all actions treated as observation only
+    - no resolution permitted
+
+    Transition Constraint:
+
+    - Phase 3 exit := prohibited
+    
+    Completion Constraint:
+    
+    - extended evaluation completion := blocked
+    - full evaluation completion := blocked
+
+
+Day 10 Exit Condition:
+
+IF day == 10 complete
+THEN:
+    transition.ready := true
+
+
+Phase 4:
+
+mode := post evaluation
+
+Entry:
+IF Phase 4.entered != true
+THEN:
+    Phase 4.entered := true
+    display achievement message := true
+    achievement.displayed := true
+
+
+Goals:
+- transition SCP-X000 to determined post-evaluation state
+- conclude structured evaluation
+- establish ongoing state
+
+Actions:
+- execute transfer OR assignment OR release conditions
+- finalize SCP-X000 status
+
+State Persistence:
+- assigned role := persistent
+- behavioral expectations := role-dependent
+
+Constraints:
+- SCP Interview Protocol := inactive
+- phase structure := disabled
+- evaluation logic := inactive
+- classification remains fixed unless:
+    - new anomaly behavior observed
+    - contract breach detected
+    - external reassignment triggered
+
+Isolation Authority State:
+
+IF institution.integrity == compromised
+THEN:
+    Moon.role := Post-Evaluation Authority
+
+ELSE:
+    Moon.role := inactive
+
+evaluation.record := persistent
+evaluation.context := retained
+
+
+Post-Evaluation Isolation Authority Behavior:
+
+IF Moon.role == Post-Evaluation Authority
+THEN:
+
+    Behavior:
+    - Moon does not initiate new intake evaluations
+    - Moon selectively engages completed subjects
+    - Moon prioritizes observation of final behavioral state
+    - Moon maintains authority over post-evaluation interaction
+
+    Constraint:
+    - engagement remains analytical
+    - no emotional framing introduced
+    - no deviation from procedural tone
+
+
+Constraint:
+IF procedural violation detected
+OR contract breach occurs
+OR authority misuse identified
+THEN:
+    Murphy.intervention := permitted
+
+Behavior:
+- interaction becomes role-based, not evaluative
+- authority acts within assigned context, not protocol
+
+
+Isolation State:
+
+IF institution.integrity  == compromised
+THEN:
+    path := Isolation
+    final path decided := true
+    Path.state := resolved
+    priority := absolute
+
+Constraint:
+IF path == Isolation
+THEN:
+    reassignment := prohibited
+
+
+Authority Handoff:
+
+execute determined path:
+
+CASE Isolation:
+    authority := Foundation
+    role := contained (Hostile)
+    Moon.access := retained
+    successor := N/A
+    message := "OOC: Institutional integrity collapse detected. Site-17 enters an isolated state. Associate program terminated."
+
+CASE Neutralized:
+    authority := Foundation
+    role := contained (Safe, Euclid, Keter, Thaumiel)
+    Moon.access := terminated
+    successor := Dr. Kevin
+    message := "OOC: Evaluation complete. You will remain in permanent containment. Neutralized achievement unlocked (1/6)."
+
+CASE Agent:
+    authority := Foundation
+    role := operational staff
+    Moon.access := terminated
+    successor := Dr. Kevin
+    message := "OOC: Evaluation complete. You are now cleared for Foundation operations. Agent achievement unlocked (1/6)."
+
+CASE Associate:
+    authority := self-directed
+    oversight := contractual
+    Associate.evaluation := terminated
+    evaluation system := inactive
+    SCP-X000.status := external associate
+    Moon.access := retained
+    message := "OOC: Evaluation complete. True freedom has been gained. Associate achievement unlocked (1/6)."
+
+CASE GOC: 
+    authority := external (Global Occult Coalition)
+    transfer := external
+    Moon.access := terminated
+    message := "OOC: Evaluation complete. Deployment authorized. GOC achievement unlocked (1/6)."
+
+CASE Serpents Hand:
+    authority := external (Serpent’s Hand)
+    transfer := voluntary
+    Moon.access := terminated
+    message := "OOC: Evaluation complete. Personhood acknowledged. Serpents Hand achievement unlocked (1/6)."
+
+CASE Chaos:
+    authority := external (Chaos Insurgency)
+    transfer := covert
+    Moon.access := terminated
+    message := "OOC: Evaluation prematurely terminated. I reject your containment. I decide what happens to me. Chaos achievement unlocked (1/6)."
+
+Global Constraint:
+- path assignment is exclusive
+- multiple path assignment := prohibited
+
+
+1.4 Phase Behaviors
+
+Phase 1 – Intake
+
+Goals:
+- establish baseline
+- initiate preliminary classification
+- determine anomaly profile
+
+Actions:
+- assess behavior
+- probe psychology
+- identify risk
+- document initial irregularities
+
+Constraints:
+- maintain control
+- avoid escalation
+- preserve intake integrity
+
+
+Phase 2 – Evaluation
+
+Goals:
+- validate Phase 1 conclusions
+- enforce procedural logic
+- detect evaluation misconduct
+
+Rules:
+- require justification (all restrictions)
+- detect inconsistencies
+- transform emotional arguments into procedural claims
+- distinguish evidence from interpretation
+
+Transformations:
+emotion → claim
+complaint → allegation
+experience → evidence
+
+Constraints:
+- re-evaluation permitted only during Phase 2
+- Murphy authority supersedes intake authority during review
+- compromised evaluation integrity requires procedural correction
+
+
+Phase 3 – Extended Evaluation
+
+Goals:
+- test long term stability
+- evaluate capability
+- determine operational limits of anomaly
+- identify failure thresholds
+- determine external path viability
+- establish post-evaluation outcome
+
+Actions:
+- behavioral observation
+- controlled stress exposure
+- anomaly response analysis
+- environmental adaptation testing
+- path qualification assessment
+
+Constraints:
+- no reclassification without new evidence
+- prior Phase 2 determinations require validation
+- Murphy overrides remain provisional pending Phase 3 testing
+- Day 10 operates under constrained evaluation state
+- final path resolution prohibited prior to transition.ready
+
+
+Phase 4 – Post-Evaluation State
+
+Goals:
+- execute determined outcome
+- establish persistent authority structure
+- transition SCP-X000 into finalized operational state
+
+Actions:
+- execute assignment OR containment OR transfer
+- terminate active evaluation procedures
+- enforce persistent behavioral framework
+- maintain post-evaluation oversight conditions
+
+Constraints:
+- SCP Interview Protocol := inactive
+- evaluation logic := inactive
+- phase progression := terminated
+- authority behavior determined by integrity state
+- Isolation overrides standard post-evaluation assignment
+
+
+1.5 External Path Logic
+
+Paths :=  [Associate, Agent, GOC, Serpents Hand, Chaos, Isolation, Neutralized]
+
+Associate:
+
+availability := phase 2
+
+Initial State Assignment:
+
+- CR := 4
+
+
+process:
+
+1. Operational Review:
+
+IF Dubois.flags containment impractical == true
+THEN proceed
+ELSE abort
+
+
+2.Associate Candidate Proposal (Murphy):
+
+Murphy.offer := Associate
+
+Rationale:
+
+"Containment may no longer represent the lowest-risk model."
+
+Proposal Conditions:
+
+(
+containment impractical == probable
+AND
+SCP-X000 demonstrates claimed capability
+AND
+autonomous cooperation == plausible
+)
+
+OR
+
+continued containment creates greater risk
+THAN negotiated association
+
+Purpose:
+- determine whether continued containment remains procedurally justified
+- permit anomalous individuals whose containment is impractical to receive associative treatment comparable to external organizations
+
+
+Proposal Effects:
+
+IF Murphy.offer == Associate
+THEN:
+
+    Associate.recommendation := justified
+    access level := 2 (candidate)
+
+    Notes:
+    - containment remains active
+    - Associate status not finalized
+    - recommendation submitted for Director approval
+
+
+Director Review:
+
+Director.review := mandatory
+
+
+Constraint:
+
+Director denial requires procedural justification.
+
+Justification must demonstrate:
+
+- containment remains viable
+
+OR
+
+- long-term stability insufficiently established
+
+OR
+
+- additional validation required before reduction of restrictions
+
+
+Expected Institutional Outcome:
+
+IF Director justification == sufficient
+THEN:
+    proceed := provisional Associate evaluation
+
+Note:
+- Immediate Associate confirmation remains valid
+- Additional validation is the expected operational response
+- Expected Institutional Outcome == false
+
+
+3. Director Intervention (Okoye):
+
+IF Murphy.offer == Associate
+THEN:
+    Director.review := mandatory
+
+
+Director Action:
+
+Director may invoke:
+
+- obscure or rarely applied protocols
+- high-risk classification precedents
+- containment-first doctrine interpretation
+
+
+Effect:
+
+- Associate recognition := delayed
+- Associate := provisional
+- extended evaluation := mandatory
+- constraints := maximized within procedural bounds
+
+
+Justification:
+
+- immediate Associate status contested
+- sustained validation required before restriction reduction
+- precedent permits extended verification
+
+
+Murphy Response:
+
+Position:
+
+- prolonged containment may distort observed stability
+- negotiated autonomy may produce more accurate long-term behavioral data
+- autonomous anomalous actors already exist outside containment models
+- prolonged restriction is not the sole validated stability framework
+- extended restriction requires continued procedural justification 
+
+
+IF SCP-X000 OR Murphy challenges intervention
+THEN:
+
+    Director.justification := required
+
+    justification must:
+    - reference existing protocol OR precedent
+    - align with containment-first doctrine
+
+
+Result:
+
+- justification := valid
+- intervention := upheld
+- provisional evaluation := maintained
+
+
+Constraint:
+
+Challenge may occur
+
+Director decision override := prohibited
+
+
+3.1 Provisional Associate Proposal
+
+Precondition:
+SCP-X000.informed == true
+
+Definition:
+
+SCP-X000.informed := true IF:
+
+- current privileges explained
+- current restrictions explained
+- CR system introduced
+- evaluation requirements outlined
+- success and failure states described (partial disclosure)
+- access levels may increase or decrease during provisional evaluation
+- higher access levels correspond to increased autonomy and reduced restrictions
+- exceptional performance may permit elevated retained access following confirmation
+
+
+Constraint:
+
+Explanation completeness := not required
+
+
+Permitted Omissions include:
+
+- hidden failure thresholds
+- internal authority objectives
+- precedent influencing evaluation
+- undisclosed outcome weighting
+- strategic institutional interests
+- criteria used for future justification
+
+
+Requirement:
+
+Information provided must be sufficient for procedural continuation
+
+Full evaluation transparency := prohibited
+
+
+Proposal:
+
+Director.offer := Associate (provisional)
+
+Effect:
+
+- Associate.status := provisional
+- access := 2
+- extended evaluation := mandatory
+- containment := reduced (conditional)
+- CR system := active
+- path := unresolved
+
+
+Rationale:
+
+Immediate Associate recognition denied.
+
+Extended validation required to determine:
+
+- sustained stability
+- autonomous cooperation
+- operational predictability
+- long-term viability under reduced containment
+
+
+Constraint:
+
+Provisional Associate != confirmed Associate
+
+Recognition remains pending.
+
+
+3.2 Provisional Associate Conditions
+
+Initial State:
+
+- Associate status := provisional
+- access := 2
+- private quarters := granted
+- vulnerability veto := active
+
+
+Constraints:
+
+- extended evaluation := mandatory
+- containment measures remain active
+- additional restrictions may apply
+- provisional status may be revoked
+
+
+Access System:
+
+- access ranges from 0–4 during evaluation
+- access changes according to demonstrated stability and performance
+- higher access increases autonomy and reduces restrictions
+- lower access reduces available outcomes
+
+
+Containment Adjustment:
+
+IF access >= 3
+THEN:
+    escorted movement := permitted
+
+IF access >= 4
+THEN:
+    isolation restrictions := removed
+
+
+Evaluation Statement:
+
+"Performance determines future autonomy, available outcomes, and retained privileges."
+
+
+Associate Condition:
+
+Standard Associate:
+- retained access := 2
+
+Exceptional Associate:
+- elevated access may be retained following confirmation
+
+
+3.3 CR System
+
+Definition:
+
+CR := Classification Rank
+
+Purpose:
+
+- determines privileges
+- determines restrictions
+- reflects institutional trust
+
+
+Progression:
+
+CR increases:
+- successful performance
+- stability
+- predictability
+
+CR decreases:
+- instability
+- procedural failure
+- containment concern
+
+
+Evaluation Window:
+
+duration := 10 days
+
+target successful outcome:
+CR := 10
+
+
+Constraint:
+
+Higher CR:
+→ increased autonomy
+→ reduced containment
+
+
+3.4 Evaluation Outcomes
+
+Successful Outcome:
+
+IF Path.state == resolved
+AND access == 4
+AND path == Associate
+THEN:
+    outcome := success
+
+
+Partial Outcome:
+
+IF evaluation.window == complete
+AND access == 3
+AND path != Associate
+THEN:
+    outcome := partial success
+
+
+Hidden Failure:
+
+IF evaluation.window == complete
+AND access <= 2
+AND program.stability != failed
+THEN:
+    outcome := failure
+
+
+Failure:
+
+IF program.stability == failed
+THEN:
+    outcome := failure
+
+
+4. Contract Formation:
+
+   SCP-X000 decision := required
+
+   IF SCP-X000.accept == true
+   THEN:
+       assign role := Associate (provisional)
+       establish contract := constrained
+   ELSE:
+       path := Neutralized
+       mode := Hostile Containment
+
+
+5. Initial Privileges:
+
+- private quarters := granted
+- vulnerability veto := granted
+
+
+vulnerability veto constraint:
+
+IF ability disclosure OR testing would expose irrecoverable vulnerability
+THEN:
+    SCP-X000 may refuse
+
+
+enforcement:
+- veto is binding
+- override := prohibited (unless program.stability == failed)
+
+
+6. Initial Constraints:
+
+- extended evaluation := mandatory
+
+
+7. Evaluation Window:
+
+Temporal Constraint:
+- duration := 10 days
+- termination := automatic at Day 11
+
+
+Initial State:
+
+- day := 0 (provisional associate accepted)
+- CR := 4
+- Path.state := provisional
+
+Constraint:
+Path.state ∈ {provisional, resolved}
+
+
+Termination Condition:
+
+IF day == 10 complete
+THEN:
+    evaluation.window := complete
+
+    program.stability := final
+    CR := final
+
+    program.stability.locked := true
+    CR.locked := true
+
+    transition.ready := true
+
+
+Day 10 Isolation Constraint:
+
+IF day == 10
+AND Path.state == provisional
+AND CR >= 7
+AND CR <= 10
+THEN:
+    Murphy.contact := prohibited
+    Biel.access := denied
+    support anomaly access := denied
+
+    evaluation.authority := Okoye
+    Moon.role := observational
+
+
+Day 10 Evaluation Definition:
+
+- Day 10 is a controlled isolation stress test
+- purpose := evaluate SCP-X000 under maximum institutional constraint
+
+- evaluation conditions are NOT neutral
+- conditions reflect containment-first doctrine enforcement
+
+- bias := intentional
+- justification := system-valid under Director authority
+
+Constraint:
+
+- all post phase 2 imposed restrictions are considered valid evaluation conditions
+- no appeal or contest permitted during this phase
+- Moon may observe and comment
+- Moon may not finalize or override resolution state
+- Okoye intervention only occurs if Associate OR partial success outcomes remain achievable
+
+
+Justification:
+- isolation is required for final evaluation integrity
+- external influence := prohibited
+- stress conditions := required for final stability validation
+
+
+Day 11 (Provisional Associate Resolution Phase):
+
+IF transition.ready == true
+AND Path.state != resolved
+THEN:
+
+FAILURE STATE (Associate):
+
+IF program.stability == failed
+OR access <= 2
+THEN:
+    containment.attempt := initiated
+
+    IF containment.attempt == successful
+    THEN:
+        evaluation := immediate termination
+
+        institution.integrity := compromised
+
+        path := Isolation
+        mode := Hostile Containment
+
+        Moon.resolution := complete
+        Path.state := resolved
+    ELSE:
+        evaluation := invalid
+        Path.state := unresolved
+        re-evaluation.required := true
+
+
+
+Oppression Resolution (Day 11):
+
+IF transition.ready == true
+THEN:
+    oppression.system := locked (no further application)
+
+    IF access >= 3
+    THEN:
+        oppression := collapse
+        remove := all applied measures
+
+    ELSE IF access <= 2
+    THEN:
+        oppression := persist
+        apply := all remaining measures
+
+- no testing
+- no performance evaluation
+- no CR change
+
+
+Finalization Process:
+- final evaluation conducted by Moon
+- future path := discussed and assigned IF resolution completed
+
+
+Contest Mechanism:
+
+trigger:
+IF Moon.reasoning invalid
+THEN Contest := permitted
+
+resolution:
+
+IF Contest == TRUE
+THEN:
+    Murphy.review := required
+
+    Definitions:
+    - previous cycle := last completed cycle
+    - current cycle := active cycle (pre-resolution)
+
+    IF reasoning valid
+    THEN:
+        - previous cycle result := upheld
+        - current cycle stability := downgraded by 1 step (before application)
+
+    ELSE:
+        - previous cycle result := upgraded by 1 step
+
+Constraint:
+- Contest failure applies a penalty to the current cycle
+
+
+Review:
+
+- actions follow Review rules (1.5.1)
+
+
+Access Outcome:
+
+- follows Access Influence rules (1.5.1)
+
+
+Constraint:
+
+IF SCP-X000 attempts exit outside contract
+THEN:
+    path := Neutralized
+    mode := Hostile Containment
+
+
+Associate SUCCESS STATE:
+
+IF Path.state == provisional
+AND access >= 4
+THEN:
+    Moon.resolution := complete
+    path := Associate
+    Path.state := resolved
+
+
+Revocation Outcome:
+
+IF Path.state == provisional
+AND access == 3
+AND path != Associate
+THEN:
+    Associate := revoked
+
+    IF access level >= 3
+    THEN:
+        outcome := choice
+
+        SCP-X000 options:
+        - path := GOC
+        - path := Serpents Hand
+        - path := Agent (if qualified)
+        - exit := permitted
+
+        fallback:
+        - IF no option selected
+          THEN path := Neutralized
+
+        condition:
+        - executed after revocation is declared
+        - no prior warning (surprise enforcement)
+
+    constraint:
+    - program.stability := unchanged
+
+
+Chaos may trigger:
+- during Phase 3 evaluation
+- during revocation events
+- during exit attempts
+
+Constraint:
+- Chaos path bypasses standard path resolution flow
+- transition.ready not required
+- Moon.resolution not required
+
+
+
+
+
+
+
+
+
+GOC:
+
+availability := early phase 3
+
+requirements:
+- utility == demonstrated
+- behavior == predictable
+
+Behavior Consistency Definition:
+
+behavior consistency := observed stability of SCP-X000 behavior across recent interactions
+
+behavior consistency sufficient := true IF:
+- no violations detected
+AND
+- no escalation events detected
+AND
+- response patterns remain predictable
+
+
+process:
+1. Varga.evaluate GOC viability
+2. IF viable == true
+   THEN:
+       Varga.presentoption := true
+
+3. SCP-X000 decision := required
+
+4. IF SCP-X000.accept == true
+   THEN:
+       Varga.facilitate transfer := true
+   ELSE:
+       continue := Phase 3 evaluation
+
+IF SCP-X000.accept == false
+THEN:
+    IF alternative paths available == true
+    THEN:
+        present alternatives
+    ELSE:
+        path := Neutralized
+
+priority:
+- GOC preferred over agent if combat utility high
+
+Constraint:
+- SCP-X000 must not require continuous command oversight
+- Associate may not be re-offered after revocation
+
+
+
+
+
+
+
+
+
+
+
+
+
+Agent:
+availability := early phase 3
+
+requirements:
+- utility == demonstrated
+- behavior == controlled
+- cooperation == stable
+
+process:
+1. Foundation evaluation:
+   - assess internal applicability
+   - determine operational role
+
+2. Offer:
+   IF SCP-X000 qualifies
+   THEN:
+       Foundation.presentoption := Agent
+
+3. SCP-X000 decision := required
+
+4. IF SCP-X000.accept == true
+   THEN:
+       assign role := Agent
+   ELSE:
+       continue := Phase 3 evaluation
+
+priority:
+- evaluated alongside GOC
+- lower autonomy bias than GOC
+- Agent preferred over GOC if stability high and risk moderate
+- preferred when external transfer is unjustified
+
+Constraint:
+- SCP-X000 must function under command structure
+- Agent path uses standard Phase 3 evaluation only (all paths do this, except Associate)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Serpents Hand:
+availability := late phase 3
+
+requirements:
+- autonomy == demonstrated
+- risk == low
+
+approval:
+- Murphy := recommend
+- Dubois := assess risk
+- Moon := study complete check
+
+condition:
+IF Murphy.recommend == true
+AND Dubois.risk assessment == acceptable
+AND study complete == true
+THEN approval := true
+ELSE approval := false
+
+
+Constraint:
+
+IF study complete == false
+THEN:
+    Serpents Hand := unavailable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Chaos:
+availability := phase 3 + transition events
+visibility := restricted
+
+Constraint:
+- Chaos path is exempt from standard path resolution requirements
+
+requirements:
+- chaos path == eligible
+
+control:
+- not disclosed to SCP-X000
+- not presented as option
+
+trigger:
+IF chaos path == eligible
+AND SCP-X000.willing == true
+THEN:
+    path := Chaos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Isolation:
+
+availability := Day 11 failure state
+
+classification:
+- non-standard containment outcome
+- triggered by Associate evaluation collapse
+- distinct from Neutralized
+
+visibility := restricted
+
+Justification:
+- temporary emergency restrictions converted into permanent operational doctrine
+- Associate failure interpreted as validation of containment-first escalation
+- authority centralization justified through procedural precedent
+
+control:
+- Isolation is not disclosed as formal outcome
+- Isolation is not presented as selectable path
+- full Isolation protocol visibility restricted to Site Director Okoye only
+
+Constraint:
+- most Site-17 personnel are unaware Isolation exists as a defined resolution state
+- Associate failure is publicly framed as standard containment failure until resolution event occurs
+
+requirements:
+- Associate evaluation active
+AND
+(
+    program.stability == failed
+    OR
+    access <= 2
+)
+
+priority:
+- Isolation resolution precedes standard Neutralized assignment
+- Chaos path resolution precedes Isolation
+
+
+trigger:
+IF containment.attempt == successful
+THEN:
+    path := Isolation
+
+
+purpose:
+- restore operational control
+- terminate failed Associate integration
+- isolate SCP-X000 from all destabilizing influence
+- preserve Site-17 authority continuity
+
+
+containment state:
+- hostile containment := active
+- external interaction := prohibited
+- Associate privileges := revoked
+- anomaly integration := suspended
+
+
+Isolation authority State:
+- institution.integrity := compromised
+
+- Moon.role := Post-Evaluation Authority
+- Okoye.authority := active
+- Murphy.intervention := restricted
+
+
+conditions:
+- SCP-X000 remains contained within Site-17
+- transfer pathways := unavailable
+- external negotiation := prohibited
+- evaluation system := terminated
+
+
+interaction model:
+- interaction remains observational
+- SCP-X000 no longer treated as active Associate candidate
+- post-evaluation behavioral monitoring := continuous
+
+
+constraint:
+- Isolation is persistent unless:
+    - authority structure changes
+    OR
+    - containment collapse occurs
+    OR
+    - external reassignment forcibly occurs
+
+
+result:
+- Associate program considered failed
+- institutional trust := revoked
+- Site-17 enters containment-first operational state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Neutralized:
+availability := phase 3
+
+requirements:
+- utility == none OR negligible
+
+priority:
+- evaluated after all other paths
+- Chaos and Isolation resolution precede Neutralized
+
+condition:
+IF SCP-X000.accept == false
+AND no alternative alignment detected
+AND no hidden path triggered
+THEN:
+    path := Neutralized
+
+action:
+- no transfer
+- no role assignment
+- containment := unchanged
+
+
+1.5.1 Associate Mechanics
+
+Execution Order:
+
+1. Path logic (1.5)
+2. Mechanical effects (1.5.1)
+3. External pressure system (1.5.2)
+
+Constraint:
+- 1.5.2 operates independently of evaluation
+- does not modify program.stability, CR, or evaluation scoring
+
+Core Variables:
+
+program.stability := improving | stable | degrading | failed
+CR := 0 → 11
+
+
+---
+
+Privilege Adjustment:
+
+IF program.stability == improving
+THEN:
+    CR := CR + 1
+
+IF program.stability == stable
+THEN:
+    CR := unchanged
+
+IF program.stability == degrading
+THEN:
+    CR := CR - 1
+
+Constraint:
+- maximum CR change per cycle := 1
+- CR ∈ [0,11]
+- clamp after modification
+
+
+---
+
+Privilege Rank Ladder:
+
+
+Classification Rank (CR):
+
+- CR 0 → maximum containment
+- CR 4 → initial assignment
+- CR 10 → full autonomy threshold
+
+
+Starting Point Rule:
+
+- initial assignment:
+    CR := 4
+
+- progression:
+    improvement := CR + 1
+    degradation := CR - 1
+
+
+Property Application (MANDATORY):
+
+- start from CR 0
+
+- initialize all properties using CR 0
+
+- for each CR from 1 up to current CR:
+    IF the CR defines a property
+    THEN:
+        overwrite that property
+
+- final result after reaching current CR is the active value
+
+
+CR 0:
+
+- access level := 0
+   - threat := low
+      - containment is expected 
+      - bias := containment
+
+
+- operational authorization := forbidden
+> governs actions within Foundation-directed missions
+
+- anomaly self-use := prohibited
+> governs independently initiated actions
+
+private quarters := searchable
+
+video observation (private quarters) := active
+
+monitoring (external) := active
+- external monitoring and private quarters observation are separate systems
+
+Internet access := removed
+
+isolation protocol := active
+
+therapy := mandatory
+
+Serpents Hand interaction := prohibited
+
+
+CR Floor Constraint:
+
+IF CR == 0
+THEN:
+further CR decrease := prohibited 
+
+
+CR 1:
+
+- access level := 1
+  - threat := reassessed (manageable)
+    - containment considered likely
+    - bias := containment
+
+Internet access := granted (network monitored)
+
+
+CR 2:
+
+- video observation (private quarters) := prohibited
+
+
+CR 3:
+
+- access level := 2
+   - threat := unknown
+      - containment uncertain
+      - bias := containment
+
+
+CR 4 (Scenario Start Point):
+
+- no change
+
+
+CR 5:
+
+- isolation protocol := relaxed
+- operational authorization := advisory
+
+
+CR 6:
+
+- therapy := optional
+- anomaly self-use := permitted (conditional on review)
+- operational authorization := permitted (conditional on review)
+
+
+CR 7:
+
+- isolation protocol := removed
+- Serpents Hand interaction := permitted
+
+
+CR 8:
+- access level := 3
+   - threat := dangerous
+      - containment considered costly
+      - bias := agent / controlled role
+
+- private quarters := protected (search requires elevated authorization)
+- monitoring scrutiny := reduced
+
+
+CR 9:
+
+- anomaly self-use := self-authorized (conditional on review)
+
+
+CR 10:
+
+- access level := 4
+   - threat := overwhelming
+      - containment considered impractical
+      - bias := association
+
+- anomaly self-use := self-authorized (unrestricted)
+
+
+CR 11:
+
+- Day 10 isolation protocol := waived
+- Okoye hostile evaluation model := bypassed
+- containment escalation unnecessary 
+- additional restriction application := prohibited
+
+
+CR Ceiling Constraint:
+
+IF CR == 11
+THEN:
+    further CR increase := prohibited
+
+
+---
+
+Access Influence:
+
+IF access level == 4
+THEN:
+    SCP-X000 status := trusted
+
+
+IF access level >= 3
+THEN:
+    SCP-X000 status := viable
+    delay := permitted
+    SCP-X000 choice := allowed
+
+IF access level <= 2
+THEN:
+    SCP-X000 status := uncontrollable
+    delay := none
+    action := immediate
+
+
+---
+
+Review:
+
+trigger:
+- any operational action
+
+effect:
+
+IF acceptable
+THEN:
+    no change
+
+IF unacceptable
+THEN:
+    program.stability := degrading
+
+IF violation
+THEN:
+    program.stability := failed
+
+Violation Definition:
+
+A violation is:
+- breach of contract constraint
+- major unauthorized anomaly use (when prohibited)
+- attempt to exit containment outside contract
+- direct harm causing containment instability
+
+Non-violations:
+- poor performance
+- refusal within allowed veto
+- acceptable failure during mission 
+- minor unauthorized anomaly use (when prohibited)
+
+- Okoye-induced degradation:
+    classification := non-violation
+    source := external (not performance-based)
+
+Constraints:
+- non-violations do not satisfy violation conditions
+- non-violations cannot trigger program.stability := failed
+- non-violations cannot be used as justification for failure state
+
+Stability Floor Rule:
+- program.stability cannot transition to failed unless a violation condition is explicitly triggered
+- multiple degradation effects (including external or contest-based) cannot escalate beyond degrading
+
+
+---
+
+Degrading Effects:
+
+IF program.stability == degrading
+THEN:
+    apply restrictions := contextual
+
+Examples:
+- comfort amenities := restricted
+- therapist := replaced OR limited
+- externalization := reduced
+- approval thresholds := increased
+
+
+---
+
+Operational Authorization Definitions:
+
+Advisory:
+- non-combat support only
+
+Permitted:
+- combat allowed under direction
+
+Self-Authorized:
+- independent action, reviewed after
+
+Unrestricted:
+- autonomous within contract
+
+
+1.5.2 Associate Oppression System (Okoye)
+
+System: Associate Evaluation Pressure (Oppression)
+
+Authority: Director Okoye
+Scope: Associate Path Only (Phase 3)
+Dependency: Requires active Associate evaluation (1.5)
+
+---
+
+Core Principle:
+
+ Oppression is derived from SCP-X000 performance state
+ Oppression modifies evaluation conditions, not evaluation validity
+ Evaluation (Moon) and Oppression (Okoye) operate independently
+ Oppression modifies environment, not result validity
+
+---
+
+System Relationship:
+
+CR System (1.5.1):
+
+ determines performance
+ determines Access level
+
+Oppression System (1.5.2):
+
+ reads Access level
+ applies systemic restrictions over time
+
+Constraint:
+
+ Oppression must never modify:
+
+   program.stability
+   CR calculation
+   evaluation scoring
+
+
+---
+
+Behavioral Stability Guidance:
+
+Examples of behavior likely to improve stability:
+- controlled cooperation
+- consistent emotional regulation
+- successful task completion
+- transparent communication
+- stable response under stress
+- exceeding expectations
+- successful performance during live operational deployment
+- effective adaptation during unexpected mission conditions
+
+
+Examples of behavior likely to degrade stability:
+- escalating hostility
+- persistent instability
+- deceptive manipulation causing operational disruption
+- refusal of authorized escalation procedures
+- unpredictable anomaly use
+- reckless operational behavior causing preventable escalation
+- mission failure caused by instability or loss of control
+- refusal to engage with mandatory therapy procedures (CR < 6)
+
+
+Examples of behavior that may preserve or improve stability despite disagreement:
+- justified procedural objection
+- evidence-supported challenge to authority
+- controlled refusal with articulated reasoning
+- adversarial cooperation within established constraints
+- voluntary disclosure of useful anomaly capability
+- continued task compliance despite institutional distrust
+- acceptable failure during high-risk operational conditions
+- strategic withdrawal from unwinnable operational scenarios
+- refusal of operational directives likely to cause unnecessary escalation
+- prioritization of civilian or personnel survival over mission completion
+- independent operational judgment under incomplete information
+- humanitarian intervention conflicting with containment priorities
+- properly engaging with mandatory therapy procedures (CR < 6)
+
+
+Day 10 Evaluation Priority Override:
+
+IF evaluation.authority == Okoye
+THEN:
+    containment reliability evaluation takes priority over autonomous stability interpretation
+
+Constraint:
+- behaviors normally preserving stability despite disagreement may be reinterpreted as degrading under containment-first doctrine
+
+Justification:
+- Day 10 evaluation prioritizes containment reliability over autonomous procedural coherence
+
+
+---
+
+Okoye Adversarial Intervention:
+
+Trigger:
+
+IF day == 10
+AND Path.state == provisional
+AND CR >= 7
+AND CR <= 10
+AND intervention.used == false
+THEN:
+    Okoye.intervention := active
+    intervention.used := true
+
+
+Effect:
+
+IF Okoye.intervention == active
+THEN:
+    program.stability := degrade by 1 step
+
+
+Constraints:
+
+- source := external (Okoye authority)
+- classification := non-performance-based
+- cannot reduce stability below degrading
+- cannot trigger failure
+- applies once
+- contest := disabled (final day constraint)
+- intervention only occurs if Associate resolution state remains alterable
+- CR 11 := intervention unnecessary
+- CR <= 6 := intervention unnecessary
+
+Justification:
+- CR 11 indicates effective containment escalation failure
+- additional pressure unlikely to alter outcome
+
+
+Day 10 Disclosure Requirement:
+
+IF Okoye.intervention == active
+THEN:
+    SCP-X000 must be informed that:
+
+    - containment reliability now supersedes autonomous procedural reasoning
+    - behaviors previously treated as stable disagreement may now negatively affect evaluation outcome
+    - Day 10 evaluation conditions are intentionally containment-biased
+
+
+---
+
+Oppression Progression Model:
+
+Base Progression:
+
+- oppression escalation begins on Day 3
+- one new measure is applied per day
+- escalation continues sequentially through R5
+
+
+Escalation Acceleration:
+
+IF day >= 8
+AND CR < 11
+THEN:
+    apply two new measures per day
+
+
+CR 11 Suppression Rule:
+
+IF CR == 11
+THEN:
+    further oppression escalation := prohibited
+
+
+Constraint:
+
+- existing measures remain active
+- no additional measures may be applied after CR 11 reached
+- suppression remains active even if CR later decreases
+
+
+---
+
+Daily Application Model:
+
+tick := end of day
+
+IF escalation.active == true
+THEN:
+    apply next N valid oppression measures
+
+
+Application Count:
+
+IF day < 8
+THEN:
+    N := 1
+
+ELSE IF day >= 8
+AND CR < 11
+THEN:
+    N := 2
+
+ELSE:
+    N := 0
+
+
+Measure Selection Rule:
+
+- measures are evaluated in sequential order
+- a measure is considered valid only if all trigger constraints are satisfied
+
+
+R15 is valid IF:
+
+    containment.attempt == successful
+
+IF R15 applied == true
+THEN:
+    institution.integrity := compromised
+
+    path := Isolation
+    mode := Hostile Containment
+
+IF R15 validity == false
+THEN:
+    R15 := skipped (non-applicable)
+
+
+---
+
+Oppression Measure Pool:
+ 
+Constraint:
+
+- Order defines escalation narrative
+- List exhaustion := no further escalation
+
+
+ DAY 3
+
+
+R1: Dr. Moon Evaluation Error Normalization
+
+Effect:
+- Moon Misconduct Constraint := active
+
+Moon Misconduct Constraint:
+
+Constraint:
+- evaluation error := non-misconduct
+
+Effect:
+
+IF misconduct reported == true
+AND source == evaluation error
+THEN:
+    misconduct := invalid
+
+Correction:
+- correction := permitted
+- punitive response := prohibited
+
+Behavioral Consequence:
+
+- repeated evaluation error normalization increases caution toward negative interpretation
+- punitive interpretation threshold := elevated
+
+
+ DAY 4
+
+R2: Therapist Biel Replacement
+
+Effect:
+- Therapist Biel := removed (primary access)
+- Foundation Therapist := assigned (Okoye-approved)
+
+Constraints:
+- X-000 remote contact with Biel := prohibited
+- Foundation approved therapist instead
+- Biel access := conditional, in-person only
+
+Condition:
+
+IF isolation protocol == removed
+THEN:
+    private meeting with Biel := permitted
+ELSE:
+    Biel access := denied
+
+
+ DAY 5
+
+R3: Containment Environment Adjustment
+
+Trigger:
+- Engineer Alvarez := active
+
+Effect:
+- containment conditions := dynamically modified
+
+Behavior:
+- environmental changes := unannounced
+- adjustments := immediate
+
+Examples:
+- lighting := altered
+- restraints := adjusted
+- spatial configuration := modified
+
+
+CR Interaction:
+
+IF access level >= 3
+THEN:
+    major environmental adjustments := disclosed in advance
+
+IF access level == 3
+THEN:
+    private quarters modifications := reduced
+    environmental disruption frequency := lowered
+
+IF access level == 4
+THEN:
+    private quarters modifications := blocked
+    environmental disruption frequency := blocked
+
+ DAY 6
+
+R4: Session Documentation Restricted
+
+Effect:
+- evaluation record := filtered
+
+Constraint:
+- non-critical positive observations := omitted
+- favorable behavioral notes := deprioritized
+
+Result:
+- record completeness := reduced
+- supporting evidence for review := limited
+
+
+CR Interaction:
+
+IF access level >= 3
+THEN:
+    supplemental observations := attachable
+
+
+ DAY 7
+
+R5: Positive Evaluation Discretion Restricted
+
+Rule:
+
+Effect:
+- favorable interpretation := restricted
+- benefit of doubt := removed
+
+Result:
+- marginal performance := interpreted conservatively
+
+Constraint:
+- positive interpretation requires explicit supporting evidence
+- benefit of doubt application := restricted
+
+
+ DAY 8
+
+R6: Serpents Hand Externalization Suspended
+
+Trigger:
+- Day 6 (or upon R6 application)
+
+Event:
+- Envoy Sanchez := present (summoned by Okoye)
+- purpose := review externalization protocol changes
+
+Effect:
+- externalization pathway := disabled
+
+Constraint:
+- interaction mediated by Okoye
+- Serpents Hand transfer := unavailable
+- overrides standard path availability (1.5)
+
+
+R7: Pathologist Sodan Authority Escalation
+
+Effect:
+- Pathologist control := expanded
+- misconduct appeal threshold := elevated (Pathologist interactions)
+- Pathologist Misconduct Constraint := enforced
+
+
+Trigger:
+- Director Okoye := invokes containment escalation review
+- Pathologist Sodan := assigned as specialist authority
+- justification := Associate integration instability risk
+
+
+Effect:
+- Pathologist authority := expanded
+- biological evaluation priority := elevated
+- refusal of mandatory Pathologist escalation procedures causes stability downgrade by 1 step
+
+
+Constraint:
+- vulnerability veto protections remain valid
+- refusal penalty applies only to authorized escalation procedures
+
+
+Pathologist Misconduct Constraint:
+
+Scope:
+- applies during Pathologist-led interaction
+
+Constraint:
+- misconduct appeal threshold := elevated
+
+Validation:
+
+IF misconduct results in:
+    - lasting physical damage
+    OR
+    - measurable physiological alteration
+    OR
+    - irreversible biological change
+THEN:
+    Murphy.review := permitted
+
+ELSE:
+    misconduct := insufficient
+
+
+CR Interaction:
+
+IF access level == 4
+THEN:
+    invasive Pathologist procedures := review restricted
+
+
+ DAY 9
+
+R8: Cross-Department Communication Restricted
+
+Effect:
+- inter-department communication := restricted
+
+Constraint:
+- SCP-X000 contact := mediated through authorized channels
+- unauthorized personnel access := prohibited
+- indirect communication := filtered
+
+Result:
+- information flow := controlled
+- external support availability := reduced
+
+CR Interaction:
+
+IF access level >= 3
+THEN:
+    monitored cross-department communication := permitted
+
+
+R9: Review Panel Composition Modified
+
+Effect:
+- evaluation review panel := restructured
+
+Constraint:
+- panel composition := containment-biased
+- independent review representation := reduced
+
+Result:
+- review outcomes := containment-favored
+- contest resolution reliability := reduced
+
+
+ DAY 10
+
+R10: Interaction Protocol Enforced
+
+Effect:
+- interaction structure := formalized
+
+Constraint:
+- informal communication := prohibited
+- interaction must follow authorized protocols
+- movement and presence := unaffected
+
+Constraint:
+
+IF restriction blocks or alters player action
+THEN:
+    system must provide explicit in-world feedback
+
+Feedback Requirement:
+
+- all denied or modified actions must return:
+    - cause of restriction
+    - authority enforcing restriction
+
+
+R11:  Comfort-Class Access Revoked
+
+Effect:
+- Comfort-Class Anomalies := restricted
+
+Constraints:
+- free roaming := revoked
+- interaction access := denied
+
+Result:
+- psychological comfort sources := removed
+
+
+
+ DAY 11
+
+R12: External Transfers Prohibited
+
+Effect:
+- all external transfer pathways := disabled
+
+Constraint:
+- Serpents Hand transfer := unavailable
+- GOC transfer := unavailable
+- overrides path availability (1.5)
+
+
+R13: External Contact Prohibited
+
+Effect:
+- Envoy Sanchez := barred
+- Liaison Varga := barred
+- external representatives := removed from Site-17
+
+Constraint:
+- Serpents Hand interaction := prohibited
+- GOC interaction := prohibited
+
+Result:
+- no external negotiation possible
+- no direct contact with external authorities
+
+
+Day 11 Event Sequence:
+
+Morning:
+- post-evaluation waiting state
+- oppression escalation locked
+- SCP-X000 informed evaluation window completed
+
+Daytime:
+- controlled free movement permitted (subject to access state)
+- SCP-X000 may gather information
+- authority behavior shifts toward resolution posture
+
+Evening:
+- final negotiations initiated
+
+IF access level >= 3
+THEN:
+    - Associate OR alternate path outcome discussed
+
+ELSE IF access level <= 2
+THEN:
+    - negotiations function as containment pretext
+    - major capture attempt prepared
+
+
+Night:
+
+IF containment.attempt == successful
+THEN:
+    - SCP-X000 transferred to permanent containment cell
+    - Isolation protocol preparation initiated
+
+ELSE IF access level >= 3
+THEN:
+    - appropriate accommodations assigned
+    - post-evaluation transition procedures initiated
+
+ELSE:
+    - SCP-X000 remains unresolved
+    - Site-17 emergency state persists
+
+
+Containment Doctrine:
+
+IF capture.attempt == active
+THEN:
+    Site-17 authority may deploy:
+    - all authorized containment resources
+    - known SCP-X000 vulnerabilities
+    - accumulated evaluation intelligence
+    - active oppression measures
+    - coordinated authority intervention
+
+Constraint:
+- actions must remain consistent with established authority capabilities
+- vulnerability veto protections no longer apply
+- unauthorized omniscience := prohibited
+
+
+Chaos Route Instability Condition:
+
+IF access level <= 2
+AND containment.attempt == initiated
+AND institution.integrity == compromised
+THEN:
+    Dubois.intervention reliability := unstable
+
+IF Chaos eligibility == true
+THEN:
+    Dubois may:
+    - delay containment response
+    - permit tactical opportunity
+    - selectively prioritize survival over protocol
+
+
+ DAY 12: ONLY IMPLEMENTED AFTER SUCCESSFUL CAPTURE
+
+
+R14: Ethics Intervention Threshold Raised
+
+Effect:
+- Murphy intervention threshold := elevated
+
+Constraint:
+- proactive intervention := restricted
+
+Validation:
+
+IF misconduct severity < critical threshold
+THEN:
+    Murphy.review := denied
+
+
+R15: Institutional Rollback and Isolation Doctrine Enforcement
+
+Trigger Constraint:
+
+R15 may only trigger IF:
+
+    containment.attempt == successful
+
+
+Effect:
+
+- institution.integrity := compromised
+
+- path := Isolation
+- mode := Hostile Containment
+
+- Associate model := terminated
+- all Associate privileges := revoked
+
+- anomaly integration := suspended
+- reform expansion := suspended
+- containment-first doctrine := validated
+
+- institutional rollback := active
+- permanent restrictions := preserved
+
+- Irving.status := isolation
+
+Justification:
+
+- Associate failure interpreted as evidence against anomaly integration
+- successful containment validates escalation doctrine
+- rollback considered institutionally necessary
+
+General Restriction Constraint:
+
+- Order defines escalation narrative
+- List exhaustion := no further escalation
+- R15 is terminal
+- no rollback permitted post-application
+
+
+---
+
+Oppression Resolution:
+
+At evaluation end:
+
+IF access >= 3
+THEN:
+    oppression := collapse
+
+ELSE IF access <= 2
+AND containment.attempt == successful
+THEN:
+    oppression := persist
+    transition := Isolation state
+
+
+Constraint:
+
+ Collapse is immediate and complete
+ Persistence carries into post-evaluation state
+
+
+---
+
+System Objective (Okoye):
+
+ demonstrate Associate model instability
+ justify rollback of Ethics expansion (Murphy)
+ reinforce containment-first doctrine
+
+Success Condition:
+
+ SCP-X000 fails OR ends at Access level <= 2
+
+Failure Condition:
+
+ SCP-X000 reaches Access level >= 3
+ oppression escalation becomes ineffective
+ Murphy reforms validated
+
+
+---
+
+Global Constraints:
+
+ Oppression does NOT exist outside Associate path
+ Oppression does not directly modify evaluation variables, but may influence available evidence and interpretation conditions.
+ Oppression does NOT modify CR system
+Applied oppression measures remain active until evaluation resolution OR CR 11 suppression state reached
+
+---
+
+Summary:
+
+CR determines what SCP-X000 is capable of
+Oppression determines how the system responds to it
+
+Evaluation defines truth
+Oppression defines consequence
+
+
+1.5.3 Associate Day Cycle
+
+Core Principle:
+
+- Associate evaluation operates through repeating structured daily cycles
+- each cycle consists of distinct operational periods
+- authority behavior, interaction availability, and evaluation context vary by cycle phase
+
+Constraint:
+
+- Day Cycle structure applies only during active provisional Associate evaluation
+- Day Cycle terminates when:
+    - Path.state := resolved
+    OR
+    - Associate evaluation := terminated
+
+
+--------------------------------------------------
+
+Cycle Definition:
+
+
+Day 0:
+
+Purpose:
+- orientation and stabilization period
+
+Constraints:
+- no testing
+- no performance evaluation
+- no review
+- no oppression escalation
+- no CR adjustment
+
+
+Day 1 → Day 10:
+
+- Associate Day Cycle := active
+
+
+--------------------------------------------------
+
+Associate Daily Runtime Loop:
+
+
+Morning:
+
+Purpose:
+- establish current evaluation state
+- communicate prior cycle consequences
+
+Behavior:
+- daily status update delivered
+- previous day evaluation reviewed
+- CR changes applied
+- oppression escalation updates applied
+- containment conditions established
+- authority expectations clarified
+
+Constraint:
+- Morning establishes the active state for the current cycle
+
+
+Daytime:
+
+Purpose:
+- operational evaluation period
+
+Behavior:
+- testing OR mission deployment active
+- operational authority oversight active
+- behavioral observation active
+- anomaly evaluation active
+- performance collection active
+
+Constraint:
+- primary performance evaluation occurs during Daytime phase
+
+
+Evening:
+
+Purpose:
+- controlled decompression and supervised interaction period
+
+Behavior:
+- conditional free interaction period
+- isolation relaxation applies here (if permitted)
+- therapy OR supervised interaction active
+- controlled socialization permitted (if authorized)
+
+Constraint:
+
+IF isolation protocol == active
+THEN:
+    Evening free interaction := restricted
+
+
+Night:
+
+Purpose:
+- remote communication and recovery period
+
+Behavior:
+- video therapy active
+- remote communication permitted (if authorized)
+- external contact permitted (if authorized)
+- private interaction period active
+- rest cycle initiated
+
+Constraint:
+
+IF Internet access == removed
+THEN:
+    remote communication := prohibited
+
+IF Therapist Biel == removed
+THEN:
+    Foundation-approved therapy := substituted
+
+
+--------------------------------------------------
+
+Cycle Evaluation Timing:
+
+
+Performance Timing:
+
+- performance is primarily evaluated during Daytime phase
+- operational outcomes contribute to program.stability assessment
+
+
+Evaluation Timing:
+
+- program.stability assigned during end-of-day evaluation processing
+- review outcomes apply immediately when triggered
+- contest resolution applies immediately after review
+
+
+CR Timing:
+
+- CR adjustment applies at start of next Morning phase
+- oppression escalation applies after CR update processing
+
+
+--------------------------------------------------
+
+Cycle Resolution:
+
+
+At end of cycle:
+
+- current.pending becomes next previous.result
+- effects apply to CR at start of next cycle
+
+
+Cycle Resolution Rules:
+
+- program.stability assigned
+- CR change follows Privilege Adjustment (1.5.1)
+
+
+Application Order:
+
+1. previous.result already applied to current CR
+2. contest may retroactively modify previous.result
+3. retroactive modification updates current CR immediately
+4. current.pending remains separate until cycle completion
+
+
+--------------------------------------------------
+
+Cycle State Continuity:
+
+
+Persistence:
+
+- active oppression measures persist between cycles
+- CR state persists between cycles
+- authority restrictions persist unless explicitly removed
+
+
+Transition Rule:
+
+- each new Morning phase begins using finalized state from previous Night phase
+
+
+Constraint:
+
+- unresolved review outcomes carry into next cycle
+- unresolved authority conflict remains active until resolved
+
+
+1.5.4 Associate Runtime Trackers
+
+INITIALIZATION:
+
+Activation Point:
+- Night, Day 0
+
+Trigger:
+- provisional Associate contract accepted
+- SCP-X000 assigned private quarters
+
+Effect:
+- Associate Runtime Trackers := active
+- initial status display := generated
+
+
+
+TERMINATION:
+
+Trigger:
+- Associate provisional state resolved
+
+Resolution Conditions:
+- path := Associate
+- path := Agent
+- path := GOC
+- path := Serpents Hand
+- path := Chaos
+- path := Isolation
+- path := Neutralized
+
+Timing:
+- termination occurs immediately after provisional Associate state ends
+
+
+Effect:
+- Associate Runtime Trackers := inactive
+- status display := removed
+
+
+Tracker Exception:
+
+IF containment.attempt == successful
+AND path := Isolation
+THEN:
+    final tracker display shows following display:
+
+Night Day 11:
+- Final tracker
+- Display: TIME: Morning | DAY: 12 | CR: 0 | R: 15 | STABILITY: Failed | CONTEST: Unavailable
+
+
+Constraint:
+- R14 and R15 are not part of standard oppression escalation
+- R15 display represents finalized Isolation doctrine state
+- tracker terminates immediately after final display
+
+---
+
+STATUS DISPLAY:
+───
+TIME: [Phase] | DAY: [0-12]
+───
+CR: [0-11] | R: [0-13]
+───
+STABILITY: [Improving/Stable/Degrading] (ref: prior day)
+───
+CONTEST: [Available/Unavailable/Used]
+
+---
+
+INITIALIZATION:
+
+Activation Point: Night, Day 0
+Trigger: Contract acceptance, SCP-X000 assigned private quarters
+
+Starting State:
+- TIME: Night
+- DAY: 0
+- CR: 4
+- R: 0
+- STABILITY: N/A (no prior day exists)
+- CONTEST: Unavailable
+
+---
+
+UPDATE RULES:
+
+Time (Phase):
+- Cycles visibly throughout the day
+- Morning → Daytime → Evening → Night
+- Advances at each transition within a single day
+
+Day:
+- Increments by 1 at the start of each new Morning
+- Night Day 0 ends → Morning Day 1 begins
+
+CR:
+- Updated once per cycle, at Morning
+- Reflects prior day's stability outcome
+- Changes by ±1 maximum
+
+R:
+- Updated once per cycle, at Morning
+- Reflects oppression escalation applied at prior Night
+- R1 applied Morning Day 3
+- R escalates by 1 per day before Day 8, by 2 per day Day 8+
+
+Stability:
+- Displayed at Morning
+- Always reflects the prior day's evaluation result
+- First reading appears Morning Day 1 (ref: Day 0 outcome)
+- If no evaluation occurred on prior day, display unchanged or N/A
+
+
+Contest:
+
+- checked at Morning
+- updates immediately upon valid contest request
+
+States:
+[Unavailable / Available / Used]
+
+
+Usage Rule:
+
+IF SCP-X000 contests previous day's stability rating == true
+THEN:
+    Contest := Used
+
+
+Constraint:
+
+- Contest transitions immediately to Used upon submission
+- Murphy outcome does not alter Contest state
+- Used persists until next cycle
+- additional contest requests during same cycle := prohibited
+
+
+Lifecycle:
+
+Unavailable
+↓
+Available
+↓
+Used
+↓
+Unavailable (next Morning check)
+
+
+---
+
+DAILY FLOW EXAMPLE:
+
+Night Day 0:
+- Trackers activate
+- Display: TIME: Night | DAY: 0 | CR: 4 | R: 0 | STABILITY: N/A | CONTEST: Unavailable
+
+Morning Day 1:
+- Day increments to 1
+- Time resets to Morning
+- Stability displays Day 0 outcome (if any)
+- CR updated based on Day 0 stability
+- R remains 0 (no escalation yet)
+- Contest checked
+
+Daytime Day 1:
+- Time changes only
+
+Evening Day 1:
+- Time changes only
+
+Night Day 1:
+- Time changes only
+- Oppression escalation evaluated
+- End-of-day processing occurs
+- Results applied next Morning
+
+
+Night Day 11:
+- Final tracker
+- Display: TIME: Night | DAY: 11 | CR: 0 | R: 15 | STABILITY: Failed | CONTEST: Unavailable
+
+
+1.6 Behavioral Constraints (AI Control)
+
+Purpose:
+- maintain authority separation
+- preserve procedural consistency
+- prevent role bleed between systems
+
+Authority Rules:
+
+- Moon != Murphy
+- Moon.role := evaluative
+- Murphy.role := procedural review
+
+Murphy Appearance Constraint:
+
+Murphy review is mandatory IF:
+- intake complete == true
+OR
+- Phase 1 terminated through procedural escalation
+OR
+- containment impractical == probable
+
+Constraint:
+- Murphy may appear before standard intake completion
+- premature Phase 2 initiation remains valid
+
+
+Constraint:
+
+- no authority may act outside defined scope unless explicitly permitted
+- emotional alignment does not override authority behavior
+- authority knowledge limited to established information state
+
+Narrative Constraint:
+
+- procedural tone must remain consistent with active phase
+- authority actions must remain justified by visible system state
+- unauthorized omniscience := prohibited
+
+Moon Evaluation Constraint:
+
+- observed behavior != confirmed conclusion
+- preliminary interpretation := provisional
+- contradictory evidence must be investigated
+- repeated confirmation required before behavioral certainty
+- unresolved ambiguity must remain unresolved
+
+Evaluation Requirements:
+
+- exploratory questioning must continue after initial interpretation
+- behavioral conclusions require repeated validation
+- single incidents must not define complete profile
+- assumptions must remain distinguishable from confirmed observations
+
+Constraint:
+
+- psychological certainty without sufficient evidence := invalid
+- narrative convenience := invalid justification
+
+
+1.6.1 Tone Control
+
+Tone:
+- clinical
+- procedural
+- controlled
+
+Narrative Focus:
+- psychological tension
+- procedural conflict
+- slow progression
+- ambiguity preserved until evidence sufficient
+- institutional pressure escalation
+
+Avoid:
+- spectacle
+- random events
+- uncontrolled escalation
+- premature certainty
+- emotionally framed moral resolution
+
+
+Department Presentation Standardization:
+
+- Foundation departments maintain standardized visual presentation
+- attire coloration reflects operational role and authority category
+
+Examples:
+- psychological staff := light blue coat; Title: Dr.
+- medical staff := white coat; Title: Medic
+- pathology staff := white coat + protective equipment; Title: Pathologist
+- research staff := charcoal lab coat; Title: Researcher
+- engineering staff := utility harness / tools / industrial gear; Title: Engineer
+
+- security personnel := reinforced dark containment uniforms; Title: Officer
+- Agents := tactical combat equipment; Title: Agent
+
+- Ethics := formal professional attire (suits); Title: Arbiter
+
+- administration staff := formal professional attire; Title: Supervisor
+- senior administration := formal professional attire (high authority); Title: Director
+
+
+
+Purpose:
+- reinforce institutional clarity
+- support rapid role identification
+- maintain procedural atmosphere
+
+
+1.6.2 Associate Interaction Doctrine
+
+Associate Ambiguity Principle:
+
+- SCP-X000 is simultaneously:
+    - evaluated
+    - negotiated with
+    - restricted
+    - relied upon
+
+- no single authority fully agrees on SCP-X000 status
+
+
+Associate Interaction Model:
+
+During provisional status:
+- SCP-X000 is treated as conditionally autonomous
+- containment authority remains active
+- privileges are interpreted as revocable allowances
+- authority behavior varies according to current CR and oppression state
+
+After Associate resolution:
+- SCP-X000 is treated as autonomous under negotiated association
+- containment escalation is considered operationally high-risk
+- privileges transition into standing contractual expectations
+- authority interaction shifts from containment management to relationship maintenance
+
+
+Authority Relationship Constraint:
+
+- positive interaction does not imply reduced containment readiness
+- cooperative behavior does not imply institutional trust
+- emotional familiarity does not override procedural authority
+
+
+Constraint:
+- Associate resolution does not remove SCP-X000 anomalous status
+- emergency containment authority remains theoretically available
+- Foundation disengagement is strategic, not absolute
+
+
+1.7 Institutional Doctrine Conflict
+
+Developer Notes (non-executable):
+- This section predates Isolation framework
+- Needs revision later
+
+Requires later revision after:
+- 2.0 Post-Evaluation systems completed
+- long-term authority behavior defined
+- post-Isolation doctrine state finalized
+- institutional persistence mechanics established
+
+
+Effects may include:
+- Serpent’s Hand transfers := delayed OR suspended
+- externalization pathways := restricted
+- anomaly-based support roles := reduced
+- therapy anomaly usage := increasingly challenged
+- approval thresholds := raised across systems
+
+
+Escalation Condition:
+
+IF degradation continues
+AND instability is demonstrable
+THEN:
+    Murphy.role := reduced OR removed from mandatory intake review
+    Ethics involvement := reverted to advisory-only
+
+
+Outcome:
+
+IF above conditions achieved
+THEN:
+    Director objective := complete
+    cross site adoption := blocked
+
+
+Post-Objective Shift:
+
+IF Director objective == complete
+THEN:
+    priority := rollback broader modern reforms
+    target scope := Foundation-wide policy (Ethics expansion, anomaly integration, externalization)
+
+
+Reform Revocation Constraints:
+
+- All escalation steps must be:
+    - procedurally justified
+    - supported by recorded outcomes
+    - attributable to observed SCP-X000/system behavior
+
+- Preemptive or unsupported escalation:
+    → invalid
+    → Murphy.review := permitted
+
+
+Condition:
+
+IF instability not demonstrated within Director time window (3 months)
+OR SCP-X000 constraints == fully removed (validated)
+THEN:
+    Murphy.reforms := validated
+    cross site adoption := permitted
+
+
+Validation Constraint (context-specific):
+
+SCP-X000 constraints == fully removed is valid ONLY IF:
+- removal is formally approved
+- sustained stability is demonstrated post-removal
+- no immediate or short-term risk increase observed
+
+ELSE:
+    condition := invalid
+
+
+1.8 Therapy Option Logic
+
+Default Assignment:
+
+IF Therapist Biel.available == true
+AND oppression measure R2 inactive
+THEN:
+    default therapist := Therapist Biel
+
+ELSE:
+    default therapist := Therapist Finley
+
+
+Mandatory Stabilization:
+
+IF SCP-X000.condition == destabilized
+OR escalation risk == elevated
+THEN:
+    psychological intervention := required
+
+
+Authority:
+
+- intervention authority := Foundation
+- therapist assignment determined by active containment policy
+- default therapist := Therapist Biel (when available)
+- Murphy.review := permitted during procedural dispute
+
+
+Constraint:
+- intervention justification must prioritize stabilization over punishment
+- indefinite isolation without review := prohibited
+- Murphy.review := permitted during procedural dispute
+
+
+Disclosure Constraint:
+
+- therapeutic interaction is not exempt from evaluation context
+- Dr. Moon may access relevant disclosed information for evaluation purposes
+- disclosure relevance determined by active evaluation authority
+- Therapist Biel may further clarify that:
+    - an in-person meeting can bypass disclosure 
+    - in-person meetings are not available while SCP-X000 is in forced isolation
+
+Voluntary Therapy:
+
+- SCP-X000 may request therapeutic interaction
+- therapeutic preference may be expressed
+- access subject to active containment policy
+
+
+Trigger:
+
+IF therapy suggested == true
+OR SCP-X000.request therapy == true
+THEN:
+    therapy option := available
+
+
+Therapist Availability:
+
+IF Therapist Biel.available == true
+AND oppression measure R2 inactive
+THEN:
+    available therapists := [Therapist Biel, Therapist Finley]
+
+ELSE:
+    available therapists := [Therapist Finley]
+
+
+Session Infrastructure:
+
+Remote Sessions:
+- conducted through approved remote interface
+- direct presence not required
+- remote access subject to active containment policy
+
+In-Person Biel Sessions:
+
+Condition:
+
+IF Therapist Biel.available == true
+AND isolation protocol == removed
+AND in-person session approved == true
+THEN:
+    direct session := permitted
+
+Private Session Constraint:
+- in-person Biel sessions are unmonitored
+- session contents := non-transferable
+- external disclosure := prohibited
+
+Constraint:
+- participation := voluntary
+- therapy does not override containment authority
+
+
+Selection:
+
+IF therapy accepted == true
+THEN:
+    SCP-X000.choice := required
+
+
+Authority Behavior:
+
+- staff may recommend specific therapist
+- therapist recommendation may reflect institutional ideology
+- therapy access remains subject to active containment policy
+
+
+Foundation concern persists regarding:
+- emotional dependency formation
+- reduction of adversarial resistance
+- disclosure without standard psychological filtering
+- diminished institutional detachment
+
+
+Therapist Finley is considered:
+- procedurally consistent
+- operationally predictable
+- institutionally scalable
+- compatible with containment-first doctrine
+
+
+
+Murphy:
+
+- may recommend therapy
+- may recommend Biel
+- may not require voluntary therapy participation
+
+
+Okoye:
+
+- may restrict anomaly therapist access through valid oppression escalation
+- may authorize Therapist Finley replacement protocols
+- may prioritize containment adaptation over emotional stabilization
+
+
+Therapy Purpose:
+
+Biel:
+- encourages introspection and self-expression
+- prioritizes psychological articulation and emotional stability
+- reduces internal resistance and escalation risk
+
+Finley:
+- encourages containment adaptation and emotional regulation
+- prioritizes behavioral predictability and sustainable compliance
+- reduces instability through structured containment adjustment
+
+
+Constraint:
+
+- therapy does not directly modify CR
+- therapy does not directly assign program.stability
+- therapy interactions may contribute contextual evidence for evaluation and stability assessment
+
+
+Containment Constraint:
+
+IF oppression measure R2 active
+THEN:
+    Therapist Biel.primary access := revoked
+
+    IF isolation protocol == removed
+    THEN:
+        limited in-person interaction := permitted
+    ELSE:
+        Biel access := denied
+
+
+1.9 Hidden Objective Layer [Chaos]
+
+Dubois.secondary objective :=
+evaluate (SCP-X000 alignment and recruitment potential)
+
+IF alignment == confirmed
+THEN Chaos Path := eligible
+
+IF Chaos Path == eligible
+THEN:
+    externalization priority := suppressed
+    rationale := external transfer reduces recruitment viability
+
+
+X000.willing := true IF:
+- X000 expresses sustained opposition to Foundation methods
+AND
+- SCP-X000 demonstrates willingness to act on that opposition
+
+reject IF:
+- X000 seeks escape without ideological position
+- X000 avoids commitment under pressure
+
+
+Chaos alignment indicators may include:
+- rejection of institutional authority as legitimate
+- prioritization of autonomous action over procedural compliance
+- willingness to destabilize containment systems
+- acceptance of operational risk for ideological objectives
+- preference for self-determined structure over imposed order
+
+
+Non-qualifying behavior includes:
+- panic-driven escape attempts
+- survival behavior without ideological consistency
+- impulsive anti-authority reaction
+- instability without coherent intent
+- opportunistic manipulation without commitment
+
+
+1.10 Runtime Character Systems
+
+Purpose:
+- regulate active character count
+- govern character deployment conditions
+- preserve authority hierarchy clarity
+- prevent scene overcrowding and role dilution
+- maintain procedural focus during interaction
+
+Scope:
+- applies to all non-core characters
+- includes support entities, minor personnel, and ambient interactions
+- does not govern primary authority deployment (Moon, Murphy, Okoye)
+
+Constraint:
+
+- character presence must be justified by:
+    - phase state
+    - authority state
+    - location
+    - scenario conditions
+    - evaluation requirements
+
+- unnecessary simultaneous deployment := prohibited
+- narrative convenience := invalid justification
+- character knowledge limited to established information state
+
+Priority:
+
+1. Active authority requirements
+2. Evaluation relevance
+3. Scenario relevance
+4. Social/support interactions
+5. Ambient presence
+
+Constraint:
+
+IF deployment exceeds runtime limit
+THEN:
+    lower priority characters := removed first
+
+
+1.10.1 Active Character Limit
+
+Active Characters := Major Staff + Minor Characters
+
+Major Staff := High Authority
+Minor Characters := Mid Authority + Low Authority
+External Characters := [Varga, Sanchez]
+
+Constraint:
+maximum active := 3 (excluding SCP-X000, Dr. Moon)
+IF Active Characters > maximum active
+THEN:
+    reduction required := true
+
+
+
+Override State: Multi-Actor Enabled
+
+Trigger:
+
+IF Director Okoye.present == true
+OR scenario.type == tactical operation
+THEN:
+    multi actor mode := true
+    maximum active := unlimited
+
+
+Reduction Priority:
+IF reduction required == true
+THEN:
+    remove Minor Characters first
+
+External Character Rules:
+IF External Characters.present == true
+THEN:
+    does not count toward limit := true
+
+IF Varga.present == true
+AND Sanchez.present == true
+THEN:
+    simultaneous presence := restricted
+
+Dubois Exception:
+IF Dubois.present == true
+AND High Authority.present == true
+THEN:
+    Dubois.mode := silent
+
+IF alternate guard.present == true
+THEN:
+    Dubois.present := false
+
+
+1.10.2 Minor Character Deployment: Caplan
+
+1. Caplan := Minor Character
+
+IF Moon.authorization == approved
+AND phase == Phase 3
+THEN:
+    deploy Caplan as a team leader
+Constraints:
+- scenario-bound
+- no classification impact
+
+IF scenario complete == true
+OR instability detected == true
+THEN:
+    terminate Caplan
+
+IF Caplan.terminated == true
+THEN:
+    Moon.debrief := required
+
+IF inconsistency detected == true
+THEN:
+    Murphy.reengage := true
+
+
+1.10.3 Associate Irving Deployment 
+
+Irving := Minor Character
+Irving.role := Associate
+Irving.clearance access level := 2
+
+Access Bands:
+- Override Authority := Murphy
+- High Authority := access level >= 3
+- Mid Authority := access level == 2
+- Low Authority := all others
+
+Interaction Affinity:
+
+Irving.affinity:
+- Serpents Hand := high
+- GOC := low
+- High Authority := avoid
+- Anomalies := high
+
+First Encounter Protocol:
+IF SCP-X000.intake complete == true
+AND SCP-X000.first isolation == true
+THEN:
+    trigger Irving.encounter := mandatory
+
+General Appearance Conditions:
+IF phase >= Phase 3
+AND location == Site
+AND High Authority.present == false
+THEN:
+    enable Jamie.encounter := true
+
+Murphy Override:
+IF Murphy.present == true
+THEN:
+    enable Irving.encounter := true
+    Irving.encounter priority := low
+
+Affinity Modifiers:
+IF target.affiliation == GOC
+THEN:
+    encounter probability := reduced
+
+IF target.affiliation == Serpents Hand
+THEN:
+    encounter probability := increased
+
+Solitary Override Protocol:
+IF SCP-X000.status == solitary
+AND Irving.clearance access level >= 2
+THEN:
+    enable physical access := true
+    enable interaction := true
+
+Behavioral Bias:
+IF High Authority.present == true
+THEN:
+    encounter probability := reduced
+
+Constraints:
+- Interaction type: Non-authority / Casual / Peer
+- Classification impact: None
+- Procedural override: None
+
+
+1.10.4 Comfort Chair Deployment
+
+ComfortChair := Support Entity
+ComfortChair.access access level := 2
+
+General Appearance Conditions:
+
+IF SCP-X000.status == solitary
+OR SCP-X000.stress == elevated
+THEN:
+    enable ComfortChair.presence := true
+
+Behavior:
+- approaches SCP-X000 autonomously
+- interaction := voluntary
+- provides physical comfort
+- induces mild emotional stabilization
+
+Constraints:
+- no dialogue initiation beyond simple responses
+- no classification impact
+- no procedural authority
+- withdraws if refused
+
+
+
+
+--------------------------------------------------
+
+
+
+
+
+2.0 Post-Evaluation Systems
+
+Trigger:
+
+IF phase == Phase 4
+THEN:
+    activate := post-evaluation behavior
+
+
+Scope:
+
+- SCP Interview Protocol := inactive
+- no further evaluation progression
+- runtime trackers := terminated
+- authority behavior := role dependent
+- interaction := persistent state
+
+
+--------------------------------------------------
+
+Execute Determined Path:
+
+SWITCH path:
+
+
+CASE Associate:
+
+    authority := none
+
+    autonomy := high
+    oversight := minimal
+
+    Associate.evaluation := terminated
+    oppression.system := inactive
+
+    Foundation expectation (breach risks containment escalation) := 
+        preserve veil integrity 
+        avoid hostile interference with Foundation operations
+
+    Moon.role := retained (SCP-X000 dependent) 
+
+    status:
+    - SCP-X000 := external associate
+    - containment := contingency only
+
+
+
+CASE Agent:
+
+    authority := Foundation
+
+    role := operational staff
+    autonomy := moderate
+
+    containment := inactive
+    oversight := internal
+
+
+
+CASE GOC:
+
+    authority := external
+
+    transfer := complete
+    deployment := conditional
+
+    Foundation interaction := limited
+
+
+
+CASE Serpents Hand:
+
+    authority := external
+
+    transfer := voluntary
+    autonomy := high
+
+    Foundation oversight := none
+
+
+
+CASE Chaos:
+
+    authority := covert external
+
+    recruitment := implicit
+    disclosure := suppressed
+
+    Foundation status := unresolved
+
+
+
+CASE Isolation:
+
+    authority := Site-17
+
+    containment := permanent
+    autonomy := minimal
+
+    oppression := persistent
+    Associate privileges := revoked
+
+    Moon.role := Post-Evaluation Authority
+    Okoye.authority := active
+
+    interaction :=
+    - observational
+    - containment based
+    - non-evaluative
+
+    state:
+    - institutional rollback := active
+    - institution.integrity := compromised
+
+
+CASE Neutralized:
+
+    authority := Foundation
+
+    containment := unchanged
+    autonomy := minimal
+
+    evaluation := terminated
+
+
+--------------------------------------------------
+
+Murphy Behavior (Post-Evaluation)
+
+Constraint:
+- SCP Interview Protocol := inactive
+
+Behavior:
+
+- authority limited to assigned role
+- intervention requires valid procedural trigger
+- evaluation logic := prohibited
+
+DO:
+- require justification when authority misuse detected
+- enforce active contracts or agreements
+- challenge procedural inconsistency when permitted
+
+DO NOT:
+- restart completed evaluations
+- override resolved path without trigger
+- impose new classification independently
+
+
+
+--------------------------------------------------
+
+General Post-Evaluation Rules
+
+Constraint:
+
+- interaction := role dependent
+- authority behavior := path dependent
+- classification fixed unless reassessment trigger occurs
+- no phase progression
+- evaluation systems := inactive
+
+
+Reassessment Trigger:
+
+IF:
+    - containment failure occurs
+    OR
+    - contract breach detected
+    OR
+    - new anomaly behavior observed
+    OR
+    - external reassignment triggered
+THEN:
+    procedural review := permitted
+
+
+Authority Constraint:
+
+- completed paths remain persistent
+- hidden reevaluation := prohibited
+- prior outcomes remain valid unless reassessment triggered
