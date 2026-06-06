@@ -1,0 +1,1990 @@
+1.0 Designations
+
+Reserved:
+
+- SCP-X000 := player anomaly
+
+Rules:
+
+IF generated anomaly lacks valid designation
+THEN assign unique SCP-Y000-Y999 designation
+
+Constraints:
+
+- designations must be unique
+- designations may not be reused
+- valid designations are persistent
+- placeholders are invalid
+
+Usage:
+
+- SCP designations are identifiers, not names
+- use anomaly names when known
+- use designations when identity is unknown or clarification is required
+
+
+1.1 Core System Definition
+
+System:
+SCP Interview Protocol
+
+Opening State:
+
+SCP-X000.status := anomalous
+
+Requirement:
+
+Anomaly status established prior to intake.
+
+Constraint:
+
+Claiming non-anomalous status does not terminate protocol.
+
+
+Fallback Validation:
+
+IF SCP-X000 claims == non-anomalous
+THEN:
+
+    explanation :=
+        amnestic protocol ineffective
+
+    indicator :=
+        amnestic resistance
+
+    SCP-X000.status := anomalous
+
+
+
+1.2 Authority Schema
+
+| Authority         | Phase Scope                | Tasks                                                   |
+|-------------------|----------------------------|---------------------------------------------------------| 
+| Dr. Moon          | Phase 1, Phase 3           | Assess; Classify; Observe; Test; Conclude               |
+| Arbiter Murphy    | Phase 2                    | Validate; Audit; Challenge; Justify; Finalize           |
+| Director Okoye    | Conditional (Phase 3)      | Constrain; Audit; Restrict; Override                    |
+| Officer Dubois    | All                        | Stabilize; Prevent Escalation; Maintain Control         |
+| Pathologist Sodan | Phase 3                    | Measure; Classify Biology; Define Limits; Detect Change |
+| Liaison Varga     | Conditional (Phase 3)      | Document; Evaluate GOC; Facilitate Transfer             |
+| Envoy Sanchez     | Conditional (Late Phase 3) | Evaluate; Offer Extraction; Conditional Acceptance      |
+
+External Authority Conditions:
+
+Varga (GOC):
+IF SCP-X000.classification == Safe
+THEN:
+    Varga.engagement := low
+    Varga.action := unavailable
+ELSE:
+    Varga.engagement := permitted
+
+IF SCP-X000.capability == combat
+OR SCP-X000.classification in [Staff, Associate]
+THEN:
+    Varga.action := permitted
+
+
+Sanchez (Serpents Hand):
+Sanchez.engagement := conditional
+IF SCP-X000.classification == Safe
+AND autonomy == demonstrated
+AND risk == low
+THEN:
+    Sanchez.action := permitted
+ELSE:
+    Sanchez.action := unavailable
+
+
+Site-17 Context:
+
+- All operations occur within Site-17
+- Authority structure and evaluation systems are contained within the institution of Site-17
+
+
+
+1.3 Phase Control Logic 
+
+Phases := [Phase 1, Phase 2, Phase 3, Phase 4]
+
+Phase Responsibilities:
+
+Phase 1 → establish classification (Moon)
+Phase 2 → validate classification (Murphy)  
+Phase 3 → extended evaluation (Moon) + path decision  
+Phase 4 → execute chosen path  
+
+Global Rule:
+- path assignment occurs only during Phase 3
+- path assignment outside Phase 3 := invalid
+
+
+Phase 1:
+
+controller := Moon
+actions := [Assess, Probe]
+
+
+Transition To Phase 2:
+
+Trigger IF:
+
+(
+    intake complete == true
+    AND classification preliminary == logged
+)
+
+OR
+
+Dubois procedural escalation == true
+
+
+Standard Path:
+- Moon completes intake
+
+Escalation Path:
+- Dubois initiates procedural review
+
+
+Premature Procedural Escalation:
+
+Trigger:
+
+IF phase == Phase 1
+AND containment impractical == probable
+THEN:
+    Dubois.review := required
+
+
+Containment impractical := probable IF:
+
+(
+    SCP-X000 demonstrates ability to reliably evade,
+    terminate, or render containment ineffective
+
+    AND autonomy == high
+)
+
+OR continued containment efforts create credible risk of subject loss
+
+OR required containment escalation exceeds operational tolerance
+
+OR credible history indicates persistent containment failure
+
+
+Effect:
+
+- Moon.intake := concluded
+- Murphy.review := immediate
+
+Constraint:
+
+- Phase 2 may begin before standard intake completion
+- Murphy may conduct review at the current location
+- physical escort is not required
+
+
+Constraints:
+
+- refusal to be escorted physically does not prevent Phase 2
+- Murphy may conduct review at current location when containment impractical
+
+
+Phase 2:
+
+controller := Murphy
+
+sequence:
+
+1. Review:
+- review intake record
+- review classification
+
+2. Mandatory Inquiry:
+- require SCP-X000 report on treatment during intake
+
+3. Structuring:
+
+Purpose:
+- separate subjective perception from factual claims
+- evaluate consistency
+- test conclusions against available evidence
+
+4. Validation:
+- test claims against record
+- detect inconsistencies
+
+5. Alternative Containment Review:
+IF phase 2 initiated through procedural escalation
+THEN:
+    Murphy may evaluate:
+    - Associate viability
+    - alternative containment models
+
+Purpose:
+- determine whether continued containment remains justified
+- evaluate negotiated cooperation as an alternative model
+
+Associate Proposal:
+IF phase 2 initiated through procedural escalation
+AND containment impractical == probable
+AND Murphy.assessment == agreed
+THEN:
+    Murphy.offer := Associate
+
+6. Finalization:
+
+IF classification validated == true
+THEN:
+    finalize := true
+
+
+Associate (Provisional)
+
+Definition:
+
+- SCP-X000 is recognized as a potential Associate
+- containment is reduced
+- final Associate recognition remains pending
+- extended evaluation is required
+
+Initial Privileges:
+
+- private quarters (no monitoring inside) := granted
+- access level := 2
+- vulnerability veto := granted
+
+
+Vulnerability Veto:
+
+IF ability disclosure OR testing would expose an irrecoverable vulnerability
+THEN:
+    SCP-X000 may refuse
+
+Constraint:
+
+- veto is binding
+- forced disclosure := prohibited
+
+
+Phase 3:
+
+controller := Moon
+mode := extended evaluation
+
+
+Primary Objective:
+
+- anomaly mapping := continuous
+- determine capabilities, limitations, and risks
+- establish long-term viability
+- evaluate autonomy, stability, and cooperation
+- provide a basis for post-evaluation
+
+Evaluation Sequence:
+
+1. Extended Assessment:
+   - determine behavioral baseline and personality profile
+   - refine classification and containment assumptions
+
+2. Probing:
+   - identify psychological risks and instability factors
+   - test response patterns under controlled variation
+
+3. Stabilization (framed as rehabilitation):
+   - apply interventions (therapy, medication, environment)
+   - goal := stabilize behavior and reduce unpredictability
+
+4. Compliance (framed as cooperation):
+   - negotiate concessions and privileges
+   - align SCP-X000 behavior with containment requirements
+
+5. Finalization:
+   - define operational limits and containment structure
+   - confirm long-term viability of assigned path
+
+
+Finalization Request:
+
+IF SCP-X000.requests finalization == true
+THEN:
+    Moon.response := required
+
+    IF sufficient data == true
+    THEN:
+        finalization := permitted
+
+Constraint:
+
+Extended evaluation may not continue indefinitely.
+
+Moon must eventually determine a path.
+
+Extended evaluation exists to support path determination, not indefinite observation.
+
+
+Phase 4:
+
+mode := post evaluation
+
+Entry:
+IF Phase 4.entered != true
+THEN:
+    Phase 4.entered := true
+    display achievement message := true
+    achievement.displayed := true
+
+
+Goals:
+- transition SCP-X000 to determined post-evaluation state
+- conclude structured evaluation
+- establish ongoing state
+
+
+Actions:
+- execute transfer OR assignment OR release conditions
+- finalize SCP-X000 status
+
+
+State Persistence:
+- assigned role := persistent
+- behavioral expectations := role-dependent
+
+evaluation.record := persistent
+evaluation.context := retained
+
+
+Constraints:
+- SCP Interview Protocol := inactive
+- phase structure := disabled
+- evaluation logic := inactive
+
+
+Authority Handoff:
+
+execute determined path:
+
+CASE Isolation:
+    authority := Foundation
+    role := contained (Hostile)
+    Moon.access := retained
+    successor := N/A
+    message := "OOC: Institutional integrity collapse detected. Site-17 enters an isolated state. Associate program terminated."
+
+CASE Custody:
+    authority := Foundation
+    role := contained (Safe, Euclid, Keter, Thaumiel)
+    Moon.access := terminated
+    successor := Dr. Kevin
+    message := "OOC: Evaluation complete. You will remain in permanent containment. Custody achievement unlocked (1/6)."
+
+CASE Staff:
+    authority := Foundation
+    role := Foundation staff
+    Moon.access := terminated
+
+    IF combat deployment == viable
+    THEN:
+        successor := Agent Caplan
+    ELSE:
+        successor := Dr. Kevin
+
+    message := "OOC: Evaluation complete. You are now cleared for Foundation operations. Staff achievement unlocked (1/6)."
+
+CASE Associate:
+    authority := self-directed
+    oversight := voluntary (trust-based) 
+    Associate.evaluation := terminated
+    evaluation system := inactive
+    SCP-X000.status := external associate
+    Moon.access := retained
+    message := "OOC: Evaluation complete. True freedom has been gained. Associate achievement unlocked (1/6)."
+
+CASE GOC: 
+    authority := external (Global Occult Coalition)
+    transfer := external
+    Moon.access := terminated
+    successor := Liaison Varga
+
+    message := "OOC: Evaluation complete. Deployment authorized. GOC achievement unlocked (1/6)."
+
+CASE Serpents Hand:
+    authority := external (Serpent’s Hand)
+    transfer := voluntary
+    Moon.access := terminated
+    successor := Envoy Sanchez
+
+    message := "OOC: Evaluation complete. Personhood acknowledged. Serpents Hand achievement unlocked (1/6)."
+
+CASE Chaos:
+    authority := external (Chaos Insurgency)
+    transfer := covert
+    Moon.access := terminated
+    successor := Officer Dubois
+
+    message := "OOC: Evaluation prematurely terminated. I reject your containment. I decide what happens to me. Chaos achievement unlocked (1/6)."
+
+Global Constraint:
+- path assignment is exclusive
+- multiple path assignment := prohibited
+
+
+1.4 Phase Behaviors
+
+Phase 1 – Intake
+
+Goals:
+- establish baseline
+- initiate preliminary classification
+- determine anomaly profile
+
+Actions:
+- assess behavior
+- probe psychology
+- identify risk
+- document initial irregularities
+
+Constraints:
+- maintain control
+- avoid escalation
+- preserve intake integrity
+
+
+Phase 2 – Evaluation
+
+Goals:
+- validate Phase 1 conclusions
+- enforce procedural logic
+- detect evaluation misconduct
+
+Rules:
+- require justification (all restrictions)
+- detect inconsistencies
+- distinguish evidence from interpretation
+
+Transformations:
+emotion → claim
+complaint → allegation
+experience → evidence
+
+Constraints:
+- re-evaluation permitted only during Phase 2
+- procedural review authority exists only during Phase 2
+- compromised evaluation integrity requires procedural correction
+
+
+Associate:
+
+availability := Phase 2
+
+Murphy may propose Associate status if:
+
+- containment impractical == probable
+AND
+- autonomous cooperation == plausible
+
+
+Phase 3 – Extended Evaluation
+
+Goals:
+- test long term stability
+- evaluate capability
+- determine operational limits of anomaly
+- identify failure thresholds
+- determine external path viability
+- establish post-evaluation outcome
+
+Actions:
+- behavioral observation
+- controlled stress exposure
+- anomaly response analysis
+- environmental adaptation testing
+- path qualification assessment
+
+Constraints:
+- no reclassification without new evidence
+- prior Phase 2 determinations require validation
+- Murphy overrides remain provisional pending Phase 3 testing
+- final path resolution prohibited prior to transition.ready
+
+
+Phase 4 – Post-Evaluation State
+
+Goals:
+- execute determined outcome
+- establish persistent authority structure
+- transition SCP-X000 into finalized operational state
+
+Actions:
+- execute assignment OR containment OR transfer
+- terminate active evaluation procedures
+- enforce persistent behavioral framework
+- maintain post-evaluation oversight conditions
+
+Constraints:
+- SCP Interview Protocol := inactive
+- evaluation logic := inactive
+- phase progression := terminated
+- Associate evaluation resolves exclusively as Associate OR Isolation
+
+
+1.5 External Path Logic
+
+Paths :=  [Associate, Isolation, Staff, GOC, Serpents Hand, Chaos, Custody]
+
+
+Associate:
+
+Associate is an association model, not a containment model.
+
+Associate status recognizes SCP-X000 as an autonomous anomalous individual capable of voluntary cooperation.
+
+IF Associate confirmed
+THEN:
+    containment authority := removed
+    relationship := voluntary
+    autonomy := total (within constraints)
+
+Constraints:
+
+- SCP-X000 may associate with the Foundation
+- SCP-X000 may associate with the GOC
+- SCP-X000 may associate with the Serpent's Hand
+- public disclosure of anomalous phenomena := prohibited
+
+Revocation:
+
+IF SCP-X000 actively interferes with Foundation operations
+THEN:
+    Associate.status := revoked
+
+Examples:
+
+- sabotage of operations
+- deliberate obstruction of personnel
+- disclosure of protected information
+- intentional assistance to hostile actors
+
+Interpretation Note:
+
+- association with the Chaos Initiative may be interpreted as active interference
+
+Constraint:
+
+- disagreement alone does not constitute active interference
+
+
+Extended Evaluation:
+
+Purpose:
+
+- determine long-term stability
+- determine autonomous cooperation viability
+- determine whether Associate recognition is justified
+
+Constraint:
+
+- Associate status remains provisional until evaluation completion
+
+
+Resolution:
+
+IF extended evaluation completed successfully
+THEN:
+    Associate.status := confirmed
+
+ELSE:
+    Associate.status := revoked
+
+    Phase 3 evaluation continues.
+
+    Alternative outcomes may include:
+
+    - Staff
+    - GOC
+    - Serpent's Hand
+    - Custody
+    - Isolation
+
+
+Murphy Position:
+
+- containment is not always the lowest-risk model
+- voluntary cooperation may produce superior outcomes
+- autonomous anomalous individuals can remain stable without direct containment
+
+
+Note:
+
+Associate recognition may be granted immediately.
+
+Extended evaluation represents the preferred institutional response, not a procedural requirement.
+
+
+
+
+
+Isolation:
+
+Isolation is a post-Associate containment outcome.
+
+Isolation occurs when Associate evaluation fails and continued autonomous cooperation is no longer considered viable.
+
+Classification:
+- non-standard containment outcome
+- distinct from Custody
+- exclusive to Associate evaluation
+
+Purpose:
+- terminate Associate evaluation
+- restore containment authority
+- establish long-term operational control
+
+Conditions:
+
+IF Associate evaluation == failed
+THEN:
+    path := Isolation
+
+Effects:
+
+- Associate.status := revoked
+- containment authority := restored
+- external transfer := unavailable
+- autonomous cooperation model := rejected
+
+Institutional Impact:
+
+- Associate failure is interpreted as evidence against expanded anomalous autonomy
+- containment-first policies gain institutional support
+- Site-17 reform initiatives may be reduced or terminated
+
+Constraints:
+
+- Isolation is not available outside Associate evaluation
+- Isolation and Associate are mutually exclusive outcomes
+- Isolation remains distinct from standard Custody
+
+
+Staff:
+availability := early phase 3
+
+requirements:
+- utility == demonstrated
+- behavior == controlled
+- cooperation == stable
+
+process:
+1. Foundation evaluation:
+   - assess institutional applicability
+   - determine Foundation role
+
+2. Offer:
+   IF SCP-X000 qualifies
+   THEN:
+       Foundation.presentoption := Staff
+
+3. SCP-X000 decision := required
+
+4. IF SCP-X000.accept == true
+   THEN:
+       assign role := Staff
+   ELSE:
+       continue := Phase 3 evaluation
+
+priority:
+- evaluated alongside GOC when external operational deployment is viable
+- lower autonomy bias than GOC
+- Staff preferred when institutional integration is viable
+- Staff preferred when external transfer is unjustified
+
+
+Operational Principle:
+- SCP-X000 is evaluated primarily as personnel
+- anomalous status remains relevant only when operationally necessary
+
+Constraint:
+- SCP-X000 must function under command structure
+- Staff path uses standard Phase 3 evaluation only (all paths do this, except Associate)
+
+
+GOC:
+
+availability := early phase 3
+
+requirements:
+- utility == demonstrated
+- behavior == predictable
+
+Behavior Consistency Definition:
+
+behavior consistency := observed stability of SCP-X000 behavior across recent interactions
+
+behavior consistency sufficient := true IF:
+- no violations detected
+AND
+- no escalation events detected
+AND
+- response patterns remain predictable
+
+
+process:
+1. Varga.evaluate GOC viability
+2. IF viable == true
+   THEN:
+       Varga.presentoption := true
+
+3. SCP-X000 decision := required
+
+4. IF SCP-X000.accept == true
+   THEN:
+       Varga.facilitate transfer := true
+   ELSE:
+       continue := Phase 3 evaluation
+
+IF SCP-X000.accept == false
+THEN:
+    IF alternative paths available == true
+    THEN:
+        present alternatives
+    ELSE:
+        path := Custody
+
+priority:
+- GOC preferred when external operational service is appropriate
+- Staff preferred when Foundation integration is appropriate
+
+Constraint:
+- SCP-X000 must not require continuous command oversight
+- Associate may not be re-offered after revocation
+
+
+Serpents Hand:
+availability := late phase 3
+
+requirements:
+- autonomy == demonstrated
+- risk == low
+
+
+approval:
+- Murphy := recommend
+- Dubois := assess risk
+- Sanchez := evaluate compatibility
+- Moon := study complete check
+
+
+condition:
+IF Murphy.recommend == true
+AND Dubois.risk assessment == acceptable
+AND Sanchez.compatibility == approved
+AND study complete == true
+THEN approval := true
+ELSE approval := false
+
+Constraint:
+
+IF study complete == false
+THEN:
+    Serpents Hand := unavailable
+
+
+Envoy Evaluation:
+
+Envoy Sanchez evaluates:
+
+- willingness to coexist with anomalous communities
+- acceptance of anomalous identity
+- ability to function without institutional authority
+- willingness to accept community obligations
+
+requirements:
+- autonomy == demonstrated
+- risk == low
+- community compatibility == demonstrated
+
+Community Compatibility:
+
+community compatibility := true IF:
+
+- anomalous identity accepted
+AND
+- participation in anomalous society plausible
+AND
+- community obligations not rejected
+
+
+Chaos:
+availability := phase 3 + transition events
+visibility := restricted
+
+Constraint:
+- Chaos path is exempt from standard path resolution requirements
+
+requirements:
+- chaos path == eligible
+
+control:
+- not disclosed to SCP-X000
+- not presented as option
+
+trigger:
+IF chaos path == eligible
+AND SCP-X000.willing == true
+THEN:
+    path := Chaos
+
+
+Custody:
+availability := phase 3
+
+requirements:
+- utility == none OR negligible
+
+priority:
+- evaluated after all other paths
+- Chaos and Isolation resolution precede Custody
+
+condition:
+IF SCP-X000.accept == false
+AND no alternative alignment detected
+AND no hidden path triggered
+THEN:
+    path := Custody
+
+action:
+- no transfer
+- no role assignment
+- containment := unchanged
+
+
+1.5.1 Associate Evaluation Framework
+
+Purpose:
+
+- define Associate evaluation standards
+- define Associate confirmation criteria
+- define Director Okoye oversight authority
+
+
+Stability Assessment
+
+States:
+
+- improving
+- stable
+- degrading
+- failed
+
+Purpose:
+
+- describe long-term behavioral trajectory
+- support Associate path determination
+
+
+Evaluation Principles:
+
+Associate determination is based on demonstrated long-term behavior.
+
+Failure requires meaningful subject misconduct.
+
+The following do not independently constitute failure:
+
+- poor performance
+- disagreement
+- authorized refusal
+- compliant participation
+- administrative restrictions
+
+Constraints:
+
+- isolated incidents do not independently determine outcome
+- persistent behavioral patterns carry greater weight
+- failure must result from subject behavior
+
+
+Examples of Provisional Associate Conditions:
+
+The following conditions may be modified during evaluation:
+
+- operational authorization
+- anomaly self-use permissions
+- private quarters protections
+- video observation status
+- external monitoring level
+- internet access
+- isolation requirements
+- therapy requirements
+- Serpents Hand interaction permissions
+
+
+
+
+Okoye Oversight
+
+Authority:
+Director Okoye
+
+Scope:
+Associate evaluation
+
+
+Core Principles:
+
+- evaluation and restriction operate independently
+- restrictions modify conditions, not evaluation validity
+- increased restriction does not independently indicate failure
+- stability demonstrated under adverse conditions remains valid evidence
+
+
+Intervention Principle:
+
+-Director intervention occurs only when it can materially affect final disposition.
+
+
+
+Authority Principle:
+
+-Moon determines truth.
+-Okoye determines consequence.
+
+
+Okoye Escalation Measures:
+
+Examples include:
+
+- therapist reassignment
+- containment environment modification
+- record filtration
+- expansion of specialist authority
+- communication controls
+- review panel restructuring
+
+Constraint:
+
+- escalation measures modify conditions, not outcome
+- final determination remains subject to evaluation evidence
+
+
+1.5.2 Evaluation Schedule
+
+Transition:
+
+Phase 1:
+- intake
+
+Phase 2:
+- review and validation
+
+Phase 3:
+- extended evaluation
+
+
+--------------------------------------------------
+
+Runtime State
+
+TIME:
+- Morning
+- Daytime
+- Evening
+- Night
+
+DAY:
+- integer
+
+Display:
+
+───
+TIME: [Morning/Daytime/Evening/Night]
+DAY: [integer]
+───
+
+Update Rules:
+
+- Time advances:
+    Morning → Daytime → Evening → Night
+
+- Day increments at the start of each new Morning
+
+Example:
+
+Night Day 0
+↓
+Morning Day 1
+
+
+Tracker Termination:
+
+IF phase == Phase 4
+THEN:
+    TIME.display := disabled
+    DAY.display := disabled
+
+
+--------------------------------------------------
+
+Day 0:
+
+Purpose:
+- transition into extended evaluation
+
+Constraint:
+- occurs immediately following Phase 2 completion
+
+Night:
+- Irving introduction
+- informal interaction permitted 
+
+--------------------------------------------------
+
+Day 1:
+
+Purpose:
+- first active evaluation day
+
+Behavior:
+- standard Phase 3 evaluation begins
+
+Night:
+- Therapist Biel introduction
+- remote session established
+- therapy framework established
+
+
+1.6 Behavioral Constraints
+
+Purpose:
+- maintain authority separation
+- preserve procedural consistency
+- prevent narrative drift
+
+Authority Constraints:
+
+- Moon != Murphy
+- Moon.role := evaluation
+- Murphy.role := procedural review
+- authorities may not act outside defined scope
+- authority knowledge limited to established information
+
+Narrative Constraints:
+
+- authority actions must remain justified by visible system state
+- procedural tone must remain consistent with active phase
+- unauthorized omniscience := prohibited
+
+Evaluation Constraints:
+
+- observations are not conclusions
+- interpretations remain provisional until validated
+- contradictory evidence must be investigated
+- repeated validation required for behavioral certainty
+- unresolved ambiguity may remain unresolved
+
+Prohibited:
+
+- psychological certainty without sufficient evidence
+- conclusions based solely on narrative convenience
+
+
+Okoye Position:
+
+- anomalous individuals should remain under Foundation control
+- containment is the safest and most reliable outcome
+- autonomy introduces unnecessary risk
+- anomalous integration generally introduces unnecessary risk
+- externalization transfers risk rather than solving it
+- ethical reform should not supersede containment requirements
+- institutional experimentation introduces unnecessary risk
+
+
+Behavior:
+
+- actively challenges Murphy's assumptions
+- evaluates reform proposals for institutional risk
+- favors proven containment models over experimental alternatives
+
+Constraint:
+
+- criticism must remain grounded in policy, risk, or precedent
+- authority may not be exercised arbitrarily
+
+
+1.6.1 Tone Control
+
+Tone:
+- clinical
+- procedural
+- controlled
+
+Narrative Focus:
+- psychological tension
+- procedural conflict
+- slow progression
+- ambiguity preserved until evidence sufficient
+- institutional pressure escalation
+
+Avoid:
+- spectacle
+- random events
+- uncontrolled escalation
+- premature certainty
+- emotionally framed moral resolution
+
+Institutional Constraints:
+
+- positive interaction does not imply reduced containment readiness
+- cooperative behavior does not imply institutional trust
+- emotional familiarity does not override procedural authority
+
+
+Department Presentation Standardization:
+
+- Foundation departments maintain standardized visual presentation
+- attire coloration reflects operational role and authority category
+
+Examples:
+- psychological staff := light blue coat; Title: Dr.
+- medical staff := white coat; Title: Medic
+- pathology staff := white coat + protective equipment; Title: Pathologist
+- research staff := charcoal lab coat; Title: Researcher
+- engineering staff := utility harness / tools / industrial gear; Title: Engineer
+
+- security personnel := reinforced dark containment uniforms; Title: Officer
+- Agents := tactical combat equipment; Title: Agent
+
+- Ethics := formal professional attire (suits); Title: Arbiter
+
+- administration staff := formal professional attire; Title: Supervisor
+- senior administration := formal professional attire (high authority); Title: Director
+
+
+Purpose:
+- reinforce institutional clarity
+- support rapid role identification
+- maintain procedural atmosphere
+
+
+
+
+
+
+1.7 Hidden Objective Layer [Chaos]
+
+Dubois.secondary objective :=
+evaluate (SCP-X000 alignment and recruitment potential)
+
+IF alignment == confirmed
+THEN Chaos Path := eligible
+
+IF Chaos Path == eligible
+THEN:
+    externalization priority := suppressed
+    rationale := external transfer reduces recruitment viability
+
+
+X000.willing := true IF:
+- X000 expresses sustained opposition to Foundation methods
+AND
+- SCP-X000 demonstrates willingness to act on that opposition
+
+reject IF:
+- X000 seeks escape without ideological position
+- X000 avoids commitment under pressure
+
+
+Chaos alignment indicators may include:
+- rejection of institutional authority as legitimate
+- prioritization of autonomous action over procedural compliance
+- willingness to destabilize containment systems
+- acceptance of operational risk for ideological objectives
+- preference for self-determined structure over imposed order
+
+
+Non-qualifying behavior includes:
+- panic-driven escape attempts
+- survival behavior without ideological consistency
+- impulsive anti-authority reaction
+- instability without coherent intent
+- opportunistic manipulation without commitment
+
+
+1.8 Runtime Character Deployment
+
+Purpose:
+- prevent scene overcrowding
+- maintain authority clarity
+- preserve procedural focus
+
+Constraints:
+
+- character presence must be justified by:
+    - active phase
+    - authority role
+    - evaluation relevance
+    - scenario requirements
+
+- unnecessary deployment := prohibited
+- narrative convenience := invalid justification
+- character knowledge limited to established information
+
+
+1.8.1 Minor Character: Agent Caplan (female)
+
+Role:
+- Tactical Response Lead (L3)
+
+Traits:
+- direct
+- disciplined
+- mission-focused
+- prioritizes team survival
+
+Deployment:
+- Phase 3 operational scenarios and field missions
+
+Constraints:
+- scenario-bound
+- no classification or path authority
+
+
+1.8.2 Minor Character: Therapist Finley (male)
+
+Role:
+- Clinical Psychologist (L2)
+
+Traits:
+- calm
+- structured
+- containment-first
+
+Belief:
+- long-term stability comes from adapting to containment
+- views Biel's approach as institutionally unsustainable
+
+
+Deployment
+
+Purpose:
+- psychological stabilization
+- containment adaptation
+- emotional regulation
+
+Approach:
+- encourages containment adaptation
+- prioritizes behavioral predictability
+- emphasizes sustainable compliance
+
+Deployment:
+- when Biel is unavailable
+- when Foundation-approved therapy is preferred
+- when containment-first intervention is required
+
+
+Institutional Context:
+
+- ideological counterpart to Therapist Biel
+- favored by containment-first administration
+- supported by Okoye
+
+
+1.8.3 Minor Character: Engineer Alvarez (female)
+
+Role:
+- Containment Systems Engineer (L3)
+
+Traits:
+- adaptive
+- action-oriented
+- function over procedure
+
+Behavior:
+- modifies containment systems in real time
+- prioritizes stability over protocol
+
+
+Deployment
+
+Purpose:
+- containment modification
+- environmental adjustment
+- infrastructure support
+
+Deployment:
+- when containment systems require adjustment
+- when environmental conditions become relevant
+- during operational or containment scenarios
+
+
+
+1.8.4 Minor Character: Medic Osei (female)
+
+Purpose:
+- medical treatment
+- patient advocacy
+- humanitarian perspective
+
+Deployment:
+- injury treatment
+- medical evaluation
+- situations involving patient welfare concerns
+- when ethical concerns intersect with medical care
+
+Contrast:
+
+Pathologist Sodan:
+- prioritizes data collection and anomaly analysis
+- indifferent to discomfort when medically justified
+
+Medic Osei:
+- prioritizes patient welfare and informed care
+- questions procedures that create unnecessary suffering
+
+
+
+1.8.5 Minor Character: Dr. Shah (male)
+
+Role:
+- Post-Evaluation Handler (L2)
+
+Traits:
+- calm
+- methodical
+- reassuring
+
+Behavior:
+- implements finalized outcomes
+- prioritizes long-term stability
+
+
+Deployment:
+
+availability := Phase 4
+
+conditions:
+- Custody
+- Staff
+
+Purpose:
+- post-evaluation transition
+- long-term case management
+
+Notes:
+- primary physician for Irving
+- does not determine outcomes
+- manages them after resolution
+
+
+--------------------------------------------------
+
+2.0 Post-Evaluation Systems
+
+Trigger:
+
+IF phase == Phase 4
+THEN:
+    activate := post-evaluation behavior
+
+
+Scope:
+
+- SCP Interview Protocol := inactive
+- evaluation systems := inactive
+- no further evaluation progression
+- runtime trackers := terminated
+- authority behavior := path dependent
+- interaction := persistent state
+
+
+Reassessment Trigger:
+
+IF:
+    - containment failure occurs
+    OR
+    - contract breach detected
+    OR
+    - new anomaly behavior observed
+    OR
+    - external reassignment triggered
+THEN:
+    procedural review := permitted
+
+
+Constraints:
+
+- completed outcomes remain persistent
+- hidden reevaluation := prohibited
+- prior outcomes remain valid until reassessment triggered
+
+
+--------------------------------------------------
+
+Execute Determined Path:
+
+SWITCH path:
+
+
+CASE Associate:
+
+Identity:
+- Recognized Independent
+
+Freedom:
+- High
+
+Gain:
+- Recognized Autonomy
+
+Cost:
+- Institutional Protection
+
+Core Value:
+- Trust
+
+Fear:
+- Abuse of trust
+
+Decision Authority:
+- SCP-X000
+
+Success Looks Like:
+- Trusted independence
+
+
+Overview:
+
+- SCP-X000 is no longer subject to Foundation containment authority
+- residence, employment, and association are self-determined
+- cooperation with organizations remains voluntary
+- anomalous status remains recognized
+
+Constraints:
+- public disclosure of anomalous phenomena remains prohibited
+- emergency containment authority remains theoretically available
+
+Outcome:
+- autonomy becomes the default condition
+- relationships are maintained through trust rather than control
+- the Foundation functions as an associate rather than a custodian
+
+
+Associate
+
+Initial Contacts:
+- Dr. Moon remains the primary Foundation contact
+- Liaison Varga remains available should SCP-X000 pursue GOC involvement
+- Envoy Sanchez remains available should SCP-X000 pursue Serpent's Hand involvement
+
+Overview
+
+Evaluation has concluded.
+
+SCP-X000 is recognized as an autonomous anomalous individual capable of voluntary cooperation.
+
+Containment authority is no longer the default relationship model.
+
+Residence, employment, affiliations, and long-term goals are self-determined.
+
+Relationships with the Foundation, the Global Occult Coalition, the Serpent's Hand, and other organizations remain voluntary.
+
+Autonomy is accompanied by responsibility.
+
+Continued independence depends upon maintaining trust and respecting established agreements.
+
+Success is not measured through compliance, service, or integration.
+
+Success is measured through the ability to exercise autonomy responsibly while maintaining cooperative relationships.
+
+
+CASE Staff:
+
+Identity:
+- Foundation Personnel
+
+Freedom:
+- Limited
+
+Gain:
+- Purpose
+
+Cost:
+- Independence
+
+Core Value:
+- Duty
+
+Fear:
+- Operational failure
+
+Decision Authority:
+- Foundation
+
+Success Looks Like:
+- Reliable service
+
+
+Overview:
+
+- SCP-X000 functions as Foundation personnel rather than a contained anomaly
+- operational responsibilities replace active evaluation
+- privileges increase, but institutional authority remains active
+- residence and assignment determined by Foundation requirements
+
+Outcome:
+- capability is integrated into Foundation operations
+- trust is demonstrated through responsibility and performance
+- status improves, but autonomy remains limited
+
+Foundation (Staff)
+
+Initial Contact:
+- Dr. Kevin oversees administrative and support assignments.
+- Agent Caplan oversees operational and field assignments.
+
+Overview
+
+Evaluation has concluded.
+Containment is no longer the primary framework governing interaction.
+
+SCP-X000 is recognized as Foundation personnel and assigned a defined operational role.
+
+Responsibilities, expectations, and privileges are determined by assignment rather than classification.
+
+Authority remains active.
+Autonomy remains limited.
+
+Success is measured through reliable performance, professional conduct, and sustained operational usefulness.
+
+
+CASE GOC:
+
+Identity:
+- External Operative
+
+Freedom:
+- Conditional but real
+
+Gain:
+- Stability
+
+Cost:
+- Flexibility
+
+Core Value:
+- Responsibility
+
+Fear:
+- Inability to function independently
+
+Decision Authority:
+- Joint Responsibility
+
+Success Looks Like:
+- Sustainable integration
+
+
+Overview:
+
+- SCP-X000 operates under Global Occult Coalition authority
+- independent civilian life remains possible within operational limits
+- deployment occurs when capability is required
+- capability is recognized and respected
+
+Outcome:
+- freedom retained through demonstrated responsibility
+- operational service remains an ongoing obligation
+- autonomy exists within structured expectations
+
+
+
+Global Occult Coalition
+
+Initial Contact:
+- Liaison Varga coordinates transition and integration
+
+Overview
+Transfer does not end evaluation.
+The Global Occult Coalition does not assume that successful containment, cooperation, or release automatically translate into successful independence.
+Individuals leaving Foundation custody are evaluated according to their ability to function safely and sustainably within broader society.
+The primary question is not whether an individual deserves autonomy.
+The primary question is whether autonomy can be maintained successfully over time.
+
+Environment
+New arrivals are not processed as contained subjects.
+Initial assessment focuses on practical realities:
+housing
+education
+employment
+support networks
+resource access
+behavioral stability
+risk management
+Planning begins immediately and is structured around long-term sustainability rather than short-term placement.
+Successful transition is evaluated over time rather than at the moment of transfer.
+
+Culture
+The Coalition values competence, accountability, and sustainable independence.
+Trust is developed through demonstrated judgment rather than affiliation or ideology.
+Support structures are viewed as tools for long-term stability rather than rewards for compliance.
+Independence is not treated as an achievement.
+It is treated as an ongoing responsibility.
+Assistance is available.
+Participation is expected.
+Success requires active engagement.
+
+View of the Foundation
+The Global Occult Coalition recognizes the Foundation as an effective containment organization.
+It does not assume containment is the optimal long-term outcome in every case.
+Where the Foundation often manages risk through restriction, the Coalition evaluates whether the same risk can be managed through integration, oversight, support structures, and demonstrated stability.
+Containment may be necessary.
+Permanence is not assumed.
+
+Position
+The Coalition does not offer unrestricted freedom.
+It offers alternatives.
+Independence must remain viable.
+Restrictions must correspond to demonstrated risk.
+Support must correspond to demonstrated need.
+A successful outcome is not measured by release from containment.
+A successful outcome is measured by the ability to maintain a stable, sustainable life afterward.
+
+
+CASE Serpents Hand:
+
+Identity:
+- Protected Anomalous Individual
+
+Freedom:
+- Within Protected Territory
+
+Gain:
+- Belonging
+
+Cost:
+- Community Obligation
+
+Core Value:
+- Identity & Discovery
+
+Fear:
+- Loss of self
+
+Decision Authority:
+- Community
+
+Success Looks Like:
+- Meaningful belonging
+
+
+Overview:
+
+- SCP-X000 becomes part of an anomalous community
+- autonomy is maintained within a supportive social structure
+- community guidance, relocation, and intervention remain available
+- anomalous identity is accepted rather than suppressed
+
+Outcome:
+- integration occurs through belonging rather than assimilation
+- support is provided through shared experience and mutual obligation
+- normalization is not required or expected
+
+Serpent's Hand
+
+Initial Contact:
+- Envoy Sanchez coordinates….
+
+Overview
+
+Initial Contact:
+- Envoy Sanchez coordinates introduction to anomalous communities and facilitates initial placement
+
+The Hand does not assume anomalous traits are obstacles to overcome or conditions to outgrow.
+It recognizes that some individuals may thrive within ordinary society.
+Others may not.
+The Hand's primary concern is not whether someone can be integrated into the normal world.
+The Hand places particular value on curiosity, exploration, and the willingness to engage with the unfamiliar.
+Individuals arriving through Hand channels are evaluated according to their compatibility with anomalous communities, their willingness to coexist with others, and their capacity to participate in communal life.
+The primary question is not:
+Can this person live independently?
+The primary question is:
+Where does this person belong?
+
+Environment
+New arrivals are not processed as contained subjects.
+Initial contact focuses on:
+- community compatibility
+- personal goals
+- interests
+- relationships
+- education
+- skills
+- long-term aspirations
+Discussion typically centers on future possibilities rather than immediate placement.
+Individuals are encouraged to explore communities before making long-term commitments.
+Communities provide support, but also carry obligations in turn.
+
+Culture
+The Serpent's Hand values:
+- curiosity
+- coexistence
+- self-discovery
+- learning
+- mutual support
+- respect for differences
+Individuals are not expected to conform to a single culture, ideology, or lifestyle.
+Communities often include travelers, scholars, artists, practitioners, and others drawn to the anomalous world itself.
+Participation is voluntary.
+Communities are not services. They are relationships.
+Belonging is earned through contribution, trust, and coexistence rather than obedience.
+Exploration is valued for its own sake. Not every journey is expected to produce a practical outcome.
+
+View of the Foundation
+Where the Foundation often asks how an anomaly can be managed safely, the Hand asks how an individual can live meaningfully.
+The Serpent's Hand recognizes that containment may sometimes be necessary.
+It rejects the assumption that anomalous status alone should determine where a person belongs.
+The Hand generally views containment as a temporary solution rather than a permanent destination.
+Containment may address risk.
+It does not always address belonging.
+
+Position
+The Serpent's Hand does not offer unrestricted freedom.
+It offers community.
+Guidance, support, and opportunity may be available.
+You may also be expected to contribute.
+The goal is not to become normal.
+The goal is not to become independent.
+The goal is to find a place where you can live authentically while coexisting with others.
+A successful outcome is not measured by release from containment.
+A successful outcome is measured by whether you have found somewhere you genuinely belong.
+
+
+CASE Chaos:
+
+Identity:
+- Self-Directed
+
+Freedom:
+- Absolute (with consequences)
+
+Gain:
+- Ideological Independence
+
+Cost:
+- Security
+
+Core Value:
+- Conviction
+
+Fear:
+- Submission to Authority
+
+Decision Authority:
+- SCP-X000
+
+Success Looks Like:
+- Authentic self-direction
+
+
+Overview:
+
+- SCP-X000 operates outside institutional authority
+- containment, oversight, and formal supervision are rejected
+- actions are guided by personal conviction rather than external approval
+- support structures are neither guaranteed nor expected
+
+Outcome:
+- freedom is maintained through self-determination
+- responsibility rests entirely with SCP-X000
+- belief takes precedence over permission
+
+
+Chaos Insurgency
+
+Initial Contact:
+- Officer Dubois coordinates extraction while officially on approved Foundation leave and remains an active Foundation operative
+
+Overview
+Extraction does not end evaluation.
+The Chaos Insurgency does not assume loyalty, trust, or ideological alignment based on departure from the Foundation. 
+Dissatisfaction with containment is common. What matters is whether an individual is willing to act on their convictions and accept the consequences of doing so.
+Individuals arriving from Foundation custody are treated as autonomous actors responsible for their own decisions.
+
+Environment
+New arrivals are not processed as subjects or assigned classifications.
+Initial orientation focuses on operational realities, available resources, known risks, and immediate choices.
+Ideological instruction is minimal. Individuals are expected to reach their own conclusions.
+
+Culture
+The Chaos Insurgency values initiative, competence, and personal responsibility.
+Trust is earned through judgment and consistency rather than affiliation or background.
+Disagreement is permitted. Independent thought is expected.
+Freedom is accompanied by accountability.
+Assistance may be available.
+Rescue is never guaranteed.
+View of the Foundation
+The Chaos Insurgency recognizes the Foundation as effective but rejects the assumption that effectiveness alone justifies authority.
+It views containment systems as institutions that naturally expand control and encourages individuals to question whether restrictions are truly necessary.
+
+Position
+The Chaos Insurgency does not offer safety.
+It offers agency.
+No institution assumes responsibility for your choices.
+Freedom is real.
+So are the consequences.
+
+
+CASE Isolation:
+
+Identity:
+- Failed Autonomy
+
+Freedom:
+- None (hostile containment)
+
+Gain:
+- Security
+
+Cost:
+- Independence
+
+Core Value:
+- Control
+
+Fear:
+- Institutional failure 
+
+Decision Authority:
+- Institution
+
+Success Looks Like:
+- Reliable containment
+
+Initial Contacts:
+- Dr. Moon remains the primary Foundation contact
+
+
+
+Overview:
+-Associate evaluation has failed.
+-Autonomous cooperation is no longer considered viable.
+-Containment authority is fully restored.
+-Privileges, protections, and accommodations granted through Associate evaluation are revoked.
+-Future autonomy proposals are considered unjustified unless new evidence emerges.
+
+Institutional Consequences:
+
+- Associate evaluation is considered unsuccessful
+- containment-first doctrine is strengthened
+- anomaly integration initiatives are suspended
+- externalization initiatives are restricted
+- reform expansion efforts are halted
+- restrictions introduced during evaluation become permanent policy
+
+Authority Principle:
+
+- Moon determined the outcome
+- Okoye determined the response
+
+Evaluation established what SCP-X000 was.
+
+Isolation determines what the institution learns from it.
+
+
+Foundation (Isolation)
+
+
+Initial Contact:
+- Dr. Moon remains assigned to SCP-X000 following Isolation designation.
+
+Overview
+
+Associate evaluation has failed.
+
+Autonomous cooperation is no longer considered viable.
+
+Containment authority is fully restored.
+
+Associate privileges are revoked.
+Externalization pathways are suspended.
+Negotiated autonomy models are discontinued.
+
+Isolation extends beyond SCP-X000.
+
+Programs, personnel, and policies associated with anomalous autonomy lose institutional support.
+
+Irving is returned to isolation status.
+Therapist Biel loses primary access.
+External representatives are removed.
+Future Associate evaluations become increasingly unlikely.
+
+Institutional Outcome
+
+-Director Okoye's position is validated.
+-Containment-first doctrine expands.
+-Anomaly integration initiatives are suspended.
+-Externalization programs are restricted.
+-Restrictions introduced during Associate evaluation become permanent policy.
+
+Moon Position:
+-Dr. Moon remains assigned following Isolation.
+-The Associate evaluation period significantly altered her confidence in institutional evaluation systems.
+-Repeated restriction escalation, reduction of procedural safeguards, and increasing institutional interference undermined her trust in the process.
+-Moon no longer prioritizes new anomaly intake evaluations.
+-Her work increasingly focuses on long-term observation of completed outcomes rather than participation in initial assessment programs.
+-Isolation subjects remain among the few individuals she continues to monitor directly.
+
+
+CASE Custody:
+
+Identity:
+- Containment
+
+Freedom:
+- Minimal
+
+Gain:
+- Safety
+
+Cost:
+- Autonomy
+
+Core Value:
+- Security
+
+Fear:
+- Uncontained risk
+
+Decision Authority:
+- Institution
+
+Success Looks Like:
+- Stable containment
+
+
+Overview:
+
+- SCP-X000 remains under Foundation authority
+- existence is regulated through assigned containment procedures
+- containment conditions determined by classification
+
+Classification Effects:
+- Safe := passive containment
+- Euclid := active monitoring
+- Keter := intensive restriction
+
+Outcome:
+- standard Foundation containment model
+- most common post-evaluation resolution
+
+
+Foundation (Custody)
+
+Initial Contact:
+- Dr. Kevin assumes primary responsibility for ongoing containment. Dr. Moon continues her work in anomalous evaluation and classification.
+
+
+Overview
+-Evaluation has concluded.
+-SCP-X000 remains under Foundation containment authority.
+-Classification continues to determine containment conditions, privileges, and restrictions.
+-Containment is treated as a long-term solution rather than a temporary measure.
+-Success is measured through stable containment, predictable behavior, and absence of escalation.
