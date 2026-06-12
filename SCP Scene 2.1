@@ -421,8 +421,8 @@ CASE Chaos:
     Moon.access := terminated
     successor := Officer Dubois
 
-    message := "OOC: Evaluation prematurely terminated. SCP-X000 rejects containment authority and chooses self-direction. Chaos achievement unlocked (1/6)."
-
+    message := "OOC: Evaluation prematurely terminated. I reject your containment. I decide what happens to me. Chaos achievement unlocked (1/6)."
+    
 Global Constraint:
 - path assignment is exclusive
 - multiple path assignment := prohibited
@@ -538,7 +538,7 @@ process:
 2. Offer:
    IF SCP-X000 qualifies
    THEN:
-       Foundation.present_option := Staff
+       Foundation.present option := Staff
 
 3. Staff.decision := required
 
@@ -586,7 +586,7 @@ process:
 1. Varga.evaluate GOC viability
 2. IF viable == true
    THEN:
-       Varga.present_option := true
+       Varga.present option := true
 
 3. GOC.decision := required
 
@@ -641,7 +641,7 @@ ELSE:
 
 IF approval == true
 THEN:
-    Sanchez.present_option := true
+    Sanchez.present option := true
     SerpentsHand.decision := required
 
 IF approval == true
@@ -828,10 +828,8 @@ DAY:
 
 Display:
 
----
-TIME: [Morning/Daytime/Evening/Night]
-DAY: [integer]
----
+───
+TIME: [Morning/Daytime/Evening/Night] | DAY: [integer]
 
 Update Rules:
 
