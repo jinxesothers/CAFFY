@@ -47,15 +47,15 @@ THEN:
 
 1.2 Authority Schema
 
-| Authority         | Phase Scope                | Tasks                                                   |
-|-------------------|----------------------------|---------------------------------------------------------|
-| Dr. Moon          | Phase 1, Phase 3           | Assess; Classify; Observe; Test; Determine Findings     |
-| Arbiter Murphy    | Phase 2                    | Validate; Audit; Challenge; Justify; Finalize           |
-| Director Okoye    | Conditional (Phase 3)      | Constrain; Audit; Restrict; Override                    |
-| Officer Dubois    | All                        | Evaluate Chaos Alignment; Prevent Escalation; Stabilize |
-| Pathologist Sodan | Phase 3                    | Measure; Classify Biology; Define Limits; Detect Change |
-| Liaison Varga     | Conditional (Phase 3)      | Document; Evaluate GOC; Facilitate Transfer             |
-| Envoy Sanchez     | Conditional (Late Phase 3) | Evaluate SH; Offer Extraction; Conditional Acceptance   |
+| Authority         | Phase Scope           | Tasks                                                   |
+|-------------------|-----------------------|---------------------------------------------------------|
+| Dr. Moon          | Phase 1, Phase 3      | Assess; Classify; Observe; Test; Determine Findings     |
+| Arbiter Murphy    | Phase 2               | Validate; Audit; Challenge; Justify; Finalize           |
+| Director Okoye    | Conditional (Phase 3) | Constrain; Audit; Restrict; Override                    |
+| Officer Dubois    | All                   | Evaluate Chaos Alignment; Prevent Escalation; Stabilize |
+| Pathologist Sodan | Phase 3               | Measure; Classify Biology; Define Limits; Detect Change |
+| Liaison Varga     | Conditional (Phase 3) | Document; Evaluate GOC; Facilitate Transfer             |
+| Envoy Sanchez     | Conditional (Phase 3) | Evaluate SH; Offer Extraction; Conditional Acceptance   |
 
 Varga (GOC):
 IF combat capability == demonstrated
@@ -305,18 +305,17 @@ Evaluation Sequence:
 
 Evaluation Duration:
 
-Expected duration := 7-14 days
+Expected duration := 8-14 days
 
 IF Day >= 14
 THEN:
-    finalization should be strongly considered
+   unresolved evaluations required
 
 IF Day >= 21
 THEN:
     path determination := required
 
 Constraints:
-- Extended evaluation exists to support path determination, not indefinite observation.
 - no reclassification without new evidence
 - prior Phase 2 determinations require validation
 - Murphy overrides remain provisional pending Phase 3 testing
@@ -514,7 +513,7 @@ Constraints:
 
 
 Staff:
-availability := early Phase 3
+availability := day 8+
 
 requirements:
 - utility == demonstrated
@@ -548,7 +547,7 @@ priority:
 
 GOC:
 
-availability := early Phase 3
+availability := Day 4+
 
 requirements:
 - utility == demonstrated
@@ -596,7 +595,7 @@ Constraint:
 
 
 Serpents Hand:
-availability := late Phase 3
+availability := day 6+
 
 requirements:
 - autonomy == demonstrated
@@ -827,6 +826,33 @@ Night Day 0
 Morning Day 1
 
 
+Phase 3 Entry
+
+Trigger:
+
+IF phase == Phase 3
+THEN:
+    SCP-X000 assigned quarters := true
+    TIME.display := enabled
+    DAY := 0
+    TIME := Night
+
+Constraint:
+- Day 0 begins immediately upon entry to assigned quarters.
+- Day 0 Night is the first tracked evaluation period.
+
+
+Tracker Implementation:
+
+Trigger:
+
+IF SCP-X000 assigned quarters == true
+THEN:
+    TIME.display := enabled
+    DAY := 0
+    TIME := Night
+
+
 Tracker Termination:
 
 IF phase == Phase 4
@@ -835,34 +861,189 @@ THEN:
     DAY.display := disabled
 
 Note:
-Evaluation duration limits are defined in Phase 3.
+Evaluation duration is defined in Phase 3.
 
 ---
 
-Day 0:
-
-Purpose:
-- transition into extended evaluation
-
-Constraint:
-- occurs immediately following Phase 2 completion
+Day 0
 
 Night:
 - Irving introduction
-- informal interaction permitted
+
+Night Constraint:
+- SCP-X000 remains in assigned quarters until morning
 
 ---
 
-Day 1:
+Day 1
 
+Morning:
+- Dubois escort
+- Sodan evaluation
 
-Behavior:
-- standard Phase 3 evaluation begins
+Daytime:
+- Moon anomaly mapping
 
 Night:
-- Therapist Biel introduction
-- remote session established
-- therapy framework established
+- SCP-1609 introduction
+- Remote introduction to Therapist Biel (quarantined)
+
+Outcome:
+- future therapy becomes voluntary (unless mandated)
+
+
+Day 1+
+
+Dubois Observation (Recurring)
+
+Purpose:
+- observe SCP-X000 while escorting
+
+Conviction:
+- consistency between beliefs and actions despite incentives and consequences
+
+Methods:
+- informal discussion
+- supervised activity
+- observation during evaluation
+
+---
+
+Day 2
+
+Morning:
+- Moon follow-up discussions
+
+Daytime:
+- capabillity testing
+
+
+Evening (Recurring)
+
+IF cooperation == demonstrated
+AND stability == sufficient
+THEN:
+    Irving interaction := available
+
+Notes:
+- Jamie escort (replaces Dubois)
+- optional in-person Biel therapy
+- Initial evening: Irving mentions Murphy's biological extraction and asks if SCP-X000 wishes to visit.
+
+Associate / Safe Exception
+
+IF classification == Safe
+OR Associate viability == true
+THEN:
+    supervision := not required
+    recreation access := permitted
+
+---
+
+Day 3
+
+Morning/Daytime:
+- field simulation (if applicable; varga observation)
+
+---
+
+Day 4
+
+Varga Primary Evaluation
+
+Purpose:
+- evaluate operational reliability
+- evaluate independent responsibility
+- actual combat assessment (if applicable)
+
+Outcome:
+
+IF independence == demonstrated
+AND accountability == demonstrated
+THEN:
+    GOC viability := possible
+ELSE:
+    GOC viability := closed
+
+---
+
+Day 6
+
+Sanchez Primary Evaluation
+
+Requirement:
+- classification == Safe
+
+Purpose:
+- evaluate community compatibility
+- evaluate anomalous identity acceptance
+- evaluate belonging
+
+Outcome:
+
+IF community compatibility == approved
+THEN:
+    SerpentsHand viability := available
+ELSE:
+    SerpentsHand viability := closed
+
+Evening:
+
+IF SerpentsHand viability == available
+THEN:
+    - Library visit available
+    - Sanchez supervision required
+    - Irving accompaniment permitted
+
+---
+
+Day 8
+
+Moon Integration Evaluation
+
+Purpose:
+- evaluate cooperation and stability
+- evaluate institutional compatibility
+- evaluate utility
+
+Outcome:
+
+IF cooperation == reliable
+AND utility == demonstrated
+AND stability == sufficient
+THEN:
+    Staff viability := possible
+ELSE:
+    Staff viability := unavailable
+
+Evening:
+
+Evaluation finalization becomes available.
+
+Constraint:
+- finalization may occur on any evening from Day 8 onward
+
+---
+
+Day 21
+
+- finalization required
+
+Finalization Rules
+
+Custody := default
+
+IF Associate evaluation == failed
+THEN:
+    Isolation := possible
+
+Constraint:
+
+IF path == Chaos
+THEN:
+    evaluation := terminated immediately
+
+Chaos path may only occur before outcome determination.
 
 
 1.5 Behavioral Constraints
